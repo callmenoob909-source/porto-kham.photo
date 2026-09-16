@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Galeri foto publik: dapat dibaca oleh semua pengunjung, dapat ditulis untuk update portofolio
+    match /works/{workId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    // Pengaturan website (hero, profil, setting)
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus } from 'lucide-react';
 import { CategoryId, PhotoWork } from '../types';
 import { CATEGORIES } from '../data/portfolio';
 
@@ -37,17 +36,6 @@ export default function WorkGallery({ works, onSelectPhoto, onOpenEditor, isOwne
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal tracking-[0.15em] uppercase text-[#141414]">
               SELECTED WORKS
             </h2>
-            {isOwner && onOpenEditor && (
-              <button
-                id="manage-photos-gallery-btn"
-                onClick={onOpenEditor}
-                className="inline-flex items-center gap-2 border border-[#141414] text-[#141414] hover:bg-[#141414] hover:text-[#FAF8F5] px-3.5 py-1.5 text-[10px] tracking-[0.2em] uppercase font-medium transition-colors cursor-pointer"
-                title="Tambah foto baru atau kelola galeri"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Kelola / Tambah Foto</span>
-              </button>
-            )}
           </div>
         </div>
 

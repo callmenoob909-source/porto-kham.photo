@@ -1,4 +1,12 @@
-export type CategoryId = 'ALL' | 'WEDDING' | 'PREWEDDING' | 'PORTRAIT' | 'EVENT' | 'PERSONAL';
+export type CategoryId =
+  | 'ALL'
+  | 'WEDDING'
+  | 'PREWEDDING'
+  | 'ENGAGEMENT'
+  | 'GRADUATION'
+  | 'PORTRAIT'
+  | 'EVENT'
+  | 'PERSONAL';
 
 export interface PhotoWork {
   id: string;

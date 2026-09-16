@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { SlidersHorizontal } from 'lucide-react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import WorkGallery from './components/WorkGallery';
@@ -9,24 +8,53 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import PhotoEditorModal from './components/PhotoEditorModal';
 import PinAuthModal from './components/PinAuthModal';
+import AdminPage from './components/AdminPage';
 import { PhotoWork, PhotographerProfile } from './types';
 import { WORKS_DATA, HERO_IMAGE, PROFILE_DATA } from './data/portfolio';
+import {
+  subscribeToWorks,
+  subscribeToSettings,
+  syncAllWorksToFirestore,
+  updateHeroInFirestore,
+  updateProfileInFirestore,
+  updatePinInFirestore,
+} from './services/firestoreService';
 
 const STORAGE_KEY_WORKS = 'kham_portfolio_works_v1';
 const STORAGE_KEY_HERO = 'kham_portfolio_hero_v1';
 const STORAGE_KEY_PROFILE = 'kham_portfolio_profile_v1';
 const STORAGE_KEY_PIN = 'kham_portfolio_pin_v1';
-const STORAGE_KEY_AUTH = 'kham_portfolio_auth_v1';
-const DEFAULT_PIN = '1406';
+const DEFAULT_PIN = '111222';
 
 export default function App() {
-  // Gallery works state with LocalStorage persistence
+  // Current route detection (e.g. '/' or '/admin')
+  const [currentPath, setCurrentPath] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase();
+      const search = window.location.search.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (
+        path === '/admin' ||
+        path === '/admin/' ||
+        search.includes('admin') ||
+        hash.includes('admin')
+      ) {
+        return '/admin';
+      }
+      return path || '/';
+    }
+    return '/';
+  });
+
+  // Gallery works state with LocalStorage fallback & Firestore sync
   const [works, setWorks] = useState<PhotoWork[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_WORKS);
       if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        const parsed: PhotoWork[] = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
       }
     } catch (e) {
       console.warn('Could not load works from localStorage', e);
@@ -56,19 +84,66 @@ export default function App() {
     return PROFILE_DATA;
   });
 
-  // Editor Modal state
+  // Editor and PIN state
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-
-  // Owner PIN and Authentication state
-  const [ownerPin, setOwnerPin] = useState<string>(() => {
-    return localStorage.getItem(STORAGE_KEY_PIN) || DEFAULT_PIN;
-  });
-
-  const [isOwnerAuthenticated, setIsOwnerAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem(STORAGE_KEY_AUTH) === 'true';
-  });
-
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<'synced' | 'saving' | 'error'>('synced');
+
+  // Owner PIN
+  const [ownerPin, setOwnerPin] = useState<string>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_PIN);
+    if (!saved || saved === '1406') {
+      localStorage.setItem(STORAGE_KEY_PIN, DEFAULT_PIN);
+      return DEFAULT_PIN;
+    }
+    return saved;
+  });
+
+  // 1. Subscribe to real-time Firestore database for Works
+  useEffect(() => {
+    const unsubscribe = subscribeToWorks((remoteWorks) => {
+      if (remoteWorks && remoteWorks.length > 0) {
+        setWorks(remoteWorks);
+        try {
+          localStorage.setItem(STORAGE_KEY_WORKS, JSON.stringify(remoteWorks));
+        } catch {
+          // ignore
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 2. Subscribe to real-time Firestore database for Settings (Hero, Profile, PIN)
+  useEffect(() => {
+    const unsubscribe = subscribeToSettings((settings) => {
+      if (settings.hero) {
+        setHeroImage(settings.hero);
+        try {
+          localStorage.setItem(STORAGE_KEY_HERO, JSON.stringify(settings.hero));
+        } catch {
+          // ignore
+        }
+      }
+      if (settings.profile) {
+        setProfile(settings.profile);
+        try {
+          localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(settings.profile));
+        } catch {
+          // ignore
+        }
+      }
+      if (settings.adminPin) {
+        setOwnerPin(settings.adminPin);
+        try {
+          localStorage.setItem(STORAGE_KEY_PIN, settings.adminPin);
+        } catch {
+          // ignore
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Lightbox State
   const [activePhoto, setActivePhoto] = useState<PhotoWork | null>(null);
@@ -80,10 +155,55 @@ export default function App() {
     setCurrentPhotosList(works);
   }, [works]);
 
-  // Keyboard shortcut: Shift + E to trigger owner PIN unlock or editor toggle
+  // Listen to browser navigation (back/forward and custom route changes)
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const path = window.location.pathname.toLowerCase();
+      const search = window.location.search.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (
+        path === '/admin' ||
+        path === '/admin/' ||
+        search.includes('admin') ||
+        hash.includes('admin')
+      ) {
+        setCurrentPath('/admin');
+      } else {
+        setCurrentPath(path || '/');
+      }
+    };
+
+    window.addEventListener('popstate', handleLocationChange);
+    return () => window.removeEventListener('popstate', handleLocationChange);
+  }, []);
+
+  const navigateTo = (path: string) => {
+    try {
+      window.history.pushState({}, '', path);
+    } catch {
+      // Fallback
+    }
+    setCurrentPath(path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleRequestOpenEditor = () => {
+    // Navigate directly to /admin
+    navigateTo('/admin');
+  };
+
+  const handlePinSuccess = () => {
+    setIsPinModalOpen(false);
+    setIsEditorOpen(true);
+  };
+
+  const handleCloseEditor = () => {
+    setIsEditorOpen(false);
+  };
+
+  // Keyboard shortcut: Shift + E to trigger /admin navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is typing in an input/textarea
       const target = e.target as HTMLElement;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
         return;
@@ -91,58 +211,68 @@ export default function App() {
 
       if (e.shiftKey && (e.key === 'E' || e.key === 'e')) {
         e.preventDefault();
-        if (isOwnerAuthenticated) {
-          setIsEditorOpen((prev) => !prev);
+        if (currentPath === '/admin') {
+          navigateTo('/');
         } else {
-          setIsPinModalOpen(true);
+          navigateTo('/admin');
         }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOwnerAuthenticated]);
-
-  const handlePinSuccess = () => {
-    setIsOwnerAuthenticated(true);
-    sessionStorage.setItem(STORAGE_KEY_AUTH, 'true');
-    setIsEditorOpen(true);
-  };
+  }, [currentPath]);
 
   const handleLockOwner = () => {
-    setIsOwnerAuthenticated(false);
-    sessionStorage.removeItem(STORAGE_KEY_AUTH);
     setIsEditorOpen(false);
+    setIsPinModalOpen(false);
   };
 
-  const handleUpdatePin = (newPin: string) => {
+  const handleUpdatePin = async (newPin: string) => {
     setOwnerPin(newPin);
     localStorage.setItem(STORAGE_KEY_PIN, newPin);
+    try {
+      await updatePinInFirestore(newPin);
+    } catch (e) {
+      console.warn('Could not sync PIN to Firestore:', e);
+    }
   };
 
-  const handleSaveWorks = (newWorks: PhotoWork[]) => {
+  const handleSaveWorks = async (newWorks: PhotoWork[]) => {
     setWorks(newWorks);
+    setSyncStatus('saving');
     try {
       localStorage.setItem(STORAGE_KEY_WORKS, JSON.stringify(newWorks));
+      await syncAllWorksToFirestore(newWorks);
+      setSyncStatus('synced');
     } catch (e) {
-      console.error('LocalStorage quota error', e);
+      console.error('Error saving works to Firestore / LocalStorage', e);
+      setSyncStatus('error');
     }
   };
 
-  const handleSaveHeroImage = (newHero: { url: string; alt: string }) => {
+  const handleSaveHeroImage = async (newHero: { url: string; alt: string }) => {
     setHeroImage(newHero);
+    setSyncStatus('saving');
     try {
       localStorage.setItem(STORAGE_KEY_HERO, JSON.stringify(newHero));
+      await updateHeroInFirestore(newHero);
+      setSyncStatus('synced');
     } catch (e) {
-      console.error('LocalStorage quota error', e);
+      console.error('Error saving hero to Firestore / LocalStorage', e);
+      setSyncStatus('error');
     }
   };
 
-  const handleSaveProfile = (newProfile: PhotographerProfile) => {
+  const handleSaveProfile = async (newProfile: PhotographerProfile) => {
     setProfile(newProfile);
+    setSyncStatus('saving');
     try {
       localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(newProfile));
+      await updateProfileInFirestore(newProfile);
+      setSyncStatus('synced');
     } catch (e) {
-      console.error('LocalStorage quota error', e);
+      console.error('Error saving profile to Firestore / LocalStorage', e);
+      setSyncStatus('error');
     }
   };
 
@@ -186,13 +316,33 @@ export default function App() {
     }
   };
 
+  // 1. Render Admin Page if visiting /admin or khamphoto.eu.cc/admin
+  if (currentPath === '/admin') {
+    return (
+      <AdminPage
+        works={works}
+        onSaveWorks={handleSaveWorks}
+        heroImage={heroImage}
+        onSaveHeroImage={handleSaveHeroImage}
+        profile={profile}
+        onSaveProfile={handleSaveProfile}
+        onResetDefaults={handleResetDefaults}
+        currentPin={ownerPin}
+        onUpdatePin={handleUpdatePin}
+        onBackToHome={() => navigateTo('/')}
+        syncStatus={syncStatus}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#FAF8F5] text-[#141414] selection:bg-[#141414] selection:text-[#FAF8F5] relative">
       {/* Top Minimalist Navigation */}
       <Navbar
         onNavigate={handleScrollToSection}
-        onOpenEditor={() => setIsEditorOpen(true)}
-        isOwner={isOwnerAuthenticated}
+        onOpenEditor={handleRequestOpenEditor}
+        isOwner={false}
+        onOpenAuth={handleRequestOpenEditor}
       />
 
       {/* Main Content Area */}
@@ -208,8 +358,8 @@ export default function App() {
         <WorkGallery
           works={works}
           onSelectPhoto={handleOpenPhoto}
-          onOpenEditor={() => setIsEditorOpen(true)}
-          isOwner={isOwnerAuthenticated}
+          onOpenEditor={handleRequestOpenEditor}
+          isOwner={false}
         />
 
         {/* About Section */}
@@ -221,33 +371,17 @@ export default function App() {
 
       {/* Minimalist Footer */}
       <Footer
-        onOpenEditor={() => setIsEditorOpen(true)}
-        isOwner={isOwnerAuthenticated}
-        onOpenAuth={() => setIsPinModalOpen(true)}
-        onLock={handleLockOwner}
+        onOpenEditor={handleRequestOpenEditor}
+        isOwner={false}
+        onOpenAuth={handleRequestOpenEditor}
+        onLock={handleCloseEditor}
+        onNavigateAdmin={() => navigateTo('/admin')}
       />
-
-      {/* Persistent Floating Studio Curator Pill - ONLY visible when Owner is authenticated */}
-      {isOwnerAuthenticated && (
-        <div className="fixed bottom-6 right-6 z-40">
-          <button
-            id="floating-manage-photos-btn"
-            onClick={() => setIsEditorOpen(true)}
-            className="group flex items-center space-x-2.5 bg-[#141414] text-[#FAF8F5] hover:bg-[#333333] px-4 py-3 shadow-xl transition-all duration-300 cursor-pointer focus:outline-none border border-black/10 hover:shadow-2xl"
-            title="Buka panel kelola atau tambah foto (Owner Mode)"
-          >
-            <SlidersHorizontal className="w-4 h-4 stroke-[1.75] transition-transform duration-300 group-hover:rotate-45" />
-            <span className="text-[11px] tracking-[0.2em] uppercase font-medium">
-              Kelola Foto
-            </span>
-          </button>
-        </div>
-      )}
 
       {/* In-App Photo & Portfolio Editor Modal */}
       <PhotoEditorModal
         isOpen={isEditorOpen}
-        onClose={() => setIsEditorOpen(false)}
+        onClose={handleCloseEditor}
         works={works}
         onSaveWorks={handleSaveWorks}
         heroImage={heroImage}
@@ -257,7 +391,7 @@ export default function App() {
         onResetDefaults={handleResetDefaults}
         currentPin={ownerPin}
         onUpdatePin={handleUpdatePin}
-        onLock={handleLockOwner}
+        onLock={handleCloseEditor}
       />
 
       {/* Secret Owner PIN Authentication Modal */}

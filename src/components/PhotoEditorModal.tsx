@@ -822,7 +822,7 @@ export default function PhotoEditorModal({
                         required
                         value={newPinInput}
                         onChange={(e) => setNewPinInput(e.target.value)}
-                        placeholder="Contoh: 1406"
+                        placeholder="••••••"
                         className="w-full px-3.5 py-2.5 bg-white border border-[#D1CEC7] text-sm tracking-[0.3em] font-mono focus:outline-none focus:border-[#141414]"
                       />
                     </div>

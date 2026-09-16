@@ -125,15 +125,6 @@ export default function PinAuthModal({
               <span>Buka Kunci Editor</span>
             </button>
           </form>
-
-          <div className="mt-6 pt-4 border-t border-[#E8E5DF] text-center">
-            <span className="text-[11px] text-[#787672] block">
-              PIN Bawaan Awal: <strong className="font-mono text-[#141414]">1406</strong>
-            </span>
-            <span className="text-[10px] text-[#787672] mt-0.5 block">
-              (Dapat Anda ganti di dalam panel editor kapan saja)
-            </span>
-          </div>
         </motion.div>
       </div>
     </AnimatePresence>

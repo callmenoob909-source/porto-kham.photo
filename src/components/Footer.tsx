@@ -6,6 +6,7 @@ interface FooterProps {
   isOwner?: boolean;
   onOpenAuth?: () => void;
   onLock?: () => void;
+  onNavigateAdmin?: () => void;
 }
 
 export default function Footer({
@@ -13,6 +14,7 @@ export default function Footer({
   isOwner = false,
   onOpenAuth,
   onLock,
+  onNavigateAdmin,
 }: FooterProps) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -23,21 +25,19 @@ export default function Footer({
       id="footer"
       className="py-12 sm:py-16 px-6 sm:px-10 max-w-7xl mx-auto border-t border-[#E8E5DF] flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-[#787672] tracking-[0.2em] uppercase"
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5">
         <span>&copy; 2026 {PROFILE_DATA.vendorName} &mdash; {PROFILE_DATA.name}</span>
         
-        {/* Discreet Owner Access Trigger */}
-        {!isOwner && onOpenAuth && (
-          <button
-            id="owner-login-btn"
-            onClick={onOpenAuth}
-            className="text-[10px] lowercase tracking-normal text-[#A8A59F] hover:text-[#141414] transition-colors flex items-center gap-1 cursor-pointer font-sans normal-case ml-2"
-            title="Akses Pemilik Portfolio (PIN) / Shortcut: Shift + E"
-          >
-            <Lock className="w-3 h-3 stroke-[1.5]" />
-            <span className="opacity-75 hover:opacity-100">owner</span>
-          </button>
-        )}
+        {/* Discreet owner trigger to /admin */}
+        <button
+          id="owner-admin-link-btn"
+          onClick={onNavigateAdmin || onOpenAuth || onOpenEditor}
+          className="opacity-0 hover:opacity-50 transition-opacity cursor-pointer focus:opacity-100 p-1 ml-1 text-[#A8A59F]"
+          title="Admin Panel"
+          aria-label="Admin Access"
+        >
+          <span className="text-[9px]">&bull;</span>
+        </button>
       </div>
 
       <div className="flex flex-wrap items-center gap-6 sm:gap-8">

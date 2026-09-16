@@ -7,11 +7,13 @@ interface NavbarProps {
   onNavigate?: (id: string) => void;
   onOpenEditor?: () => void;
   isOwner?: boolean;
+  onOpenAuth?: () => void;
 }
 
-export default function Navbar({ onNavigate, onOpenEditor, isOwner = false }: NavbarProps) {
+export default function Navbar({ onNavigate, onOpenEditor, isOwner = false, onOpenAuth }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [logoTapCount, setLogoTapCount] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,6 +22,22 @@ export default function Navbar({ onNavigate, onOpenEditor, isOwner = false }: Na
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Secret triple-tap logo trigger for owner
+  const handleLogoTap = () => {
+    if (isOwner) {
+      onOpenEditor?.();
+      return;
+    }
+    const nextCount = logoTapCount + 1;
+    setLogoTapCount(nextCount);
+    if (nextCount >= 3) {
+      setLogoTapCount(0);
+      onOpenAuth?.();
+    } else {
+      setTimeout(() => setLogoTapCount(0), 1200);
+    }
+  };
 
   const handleLinkClick = (id: string) => {
     setIsOpen(false);
@@ -49,6 +67,7 @@ export default function Navbar({ onNavigate, onOpenEditor, isOwner = false }: Na
             href="#"
             onClick={(e) => {
               e.preventDefault();
+              handleLogoTap();
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             id="brand-logo"

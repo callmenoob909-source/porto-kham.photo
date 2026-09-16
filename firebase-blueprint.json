@@ -1,0 +1,45 @@
+{
+  "entities": {
+    "PortfolioWork": {
+      "title": "PortfolioWork",
+      "description": "Foto karya portofolio fotografer Irkham",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "categoryLabel": { "type": "string" },
+        "image": { "type": "string" },
+        "aspectRatio": { "type": "string" },
+        "orientation": { "type": "string" },
+        "year": { "type": "string" },
+        "location": { "type": "string" },
+        "alt": { "type": "string" },
+        "order": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "category", "image"]
+    },
+    "SiteSettings": {
+      "title": "SiteSettings",
+      "description": "Pengaturan website seperti Hero image, profile, dan PIN admin",
+      "type": "object",
+      "properties": {
+        "heroImageUrl": { "type": "string" },
+        "heroImageAlt": { "type": "string" },
+        "profilePortrait": { "type": "string" },
+        "adminPin": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/works/{workId}": {
+      "schema": "PortfolioWork",
+      "description": "Koleksi foto portofolio publik"
+    },
+    "/settings/{settingId}": {
+      "schema": "SiteSettings",
+      "description": "Pengaturan situs dan hero image"
+    }
+  }
+}
