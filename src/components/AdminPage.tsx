@@ -17,7 +17,14 @@ import {
   Sparkles,
   ExternalLink,
   ShieldCheck,
-  Home
+  Home,
+  User,
+  Compass,
+  Phone,
+  MessageCircle,
+  Mail,
+  Instagram,
+  FileText
 } from 'lucide-react';
 import { PhotoWork, CategoryId, PhotographerProfile } from '../types';
 import { CATEGORIES, PROFILE_DATA } from '../data/portfolio';
@@ -81,6 +88,43 @@ export default function AdminPage({
   const [heroUrl, setHeroUrl] = useState(heroImage.url);
   const [profileImgUrl, setProfileImgUrl] = useState(profile.portraitImage);
   const [brandSaved, setBrandSaved] = useState(false);
+
+  // Editable Profile, Approach & Contact details
+  const [vendorName, setVendorName] = useState(profile.vendorName || profile.name || '');
+  const [photographerName, setPhotographerName] = useState(profile.name || '');
+  const [roleTitle, setRoleTitle] = useState(profile.role || '');
+  const [taglineText, setTaglineText] = useState(profile.tagline || '');
+  const [bioIntroText, setBioIntroText] = useState(profile.bioIntro || '');
+  const [bioQuoteText, setBioQuoteText] = useState(profile.bioQuote || '');
+  const [locationText, setLocationText] = useState(profile.location || '');
+  const [approachText, setApproachText] = useState(profile.approachPhilosophy || '');
+  const [contactHeadlineText, setContactHeadlineText] = useState(profile.contactHeadline || '');
+  const [contactDescText, setContactDescText] = useState(profile.contactDescription || '');
+  const [emailText, setEmailText] = useState(profile.email || '');
+  const [whatsappText, setWhatsappText] = useState(profile.whatsapp || '');
+  const [whatsappDisplayText, setWhatsappDisplayText] = useState(profile.whatsappDisplay || '');
+  const [instagramText, setInstagramText] = useState(profile.instagram || '');
+  const [instagramHandleText, setInstagramHandleText] = useState(profile.instagramHandle || '');
+
+  // Keep state synced when profile prop updates
+  useEffect(() => {
+    setProfileImgUrl(profile.portraitImage);
+    setVendorName(profile.vendorName || profile.name || '');
+    setPhotographerName(profile.name || '');
+    setRoleTitle(profile.role || '');
+    setTaglineText(profile.tagline || '');
+    setBioIntroText(profile.bioIntro || '');
+    setBioQuoteText(profile.bioQuote || '');
+    setLocationText(profile.location || '');
+    setApproachText(profile.approachPhilosophy || '');
+    setContactHeadlineText(profile.contactHeadline || '');
+    setContactDescText(profile.contactDescription || '');
+    setEmailText(profile.email || '');
+    setWhatsappText(profile.whatsapp || '');
+    setWhatsappDisplayText(profile.whatsappDisplay || '');
+    setInstagramText(profile.instagram || '');
+    setInstagramHandleText(profile.instagramHandle || '');
+  }, [profile]);
 
   // PIN change state
   const [newPinInput, setNewPinInput] = useState('');
@@ -242,6 +286,21 @@ export default function AdminPage({
     });
     onSaveProfile({
       ...profile,
+      vendorName: vendorName.trim() || profile.vendorName,
+      name: photographerName.trim(),
+      role: roleTitle.trim() || profile.role,
+      tagline: taglineText.trim() || profile.tagline,
+      bioIntro: bioIntroText.trim() || profile.bioIntro,
+      bioQuote: bioQuoteText.trim() || profile.bioQuote,
+      location: locationText.trim() || profile.location,
+      approachPhilosophy: approachText.trim(),
+      contactHeadline: contactHeadlineText.trim(),
+      contactDescription: contactDescText.trim(),
+      email: emailText.trim() || profile.email,
+      whatsapp: whatsappText.trim() || profile.whatsapp,
+      whatsappDisplay: whatsappDisplayText.trim() || whatsappText.trim() || profile.whatsappDisplay,
+      instagram: instagramText.trim() || profile.instagram,
+      instagramHandle: instagramHandleText.trim() || profile.instagramHandle,
       portraitImage: profileImgUrl,
     });
     setBrandSaved(true);
@@ -455,7 +514,7 @@ export default function AdminPage({
                   : 'text-[#787672] hover:text-[#141414]'
               }`}
             >
-              Hero & Profil
+              Profil, About & Kontak
             </button>
             <button
               onClick={() => setActiveTab('security')}
@@ -759,120 +818,411 @@ export default function AdminPage({
           </div>
         )}
 
-        {/* TAB 2: HERO & PROFIL BRANDING */}
+        {/* TAB 2: HERO, PROFIL, ABOUT & KONTAK */}
         {activeTab === 'branding' && (
-          <div className="max-w-3xl bg-white border border-[#E8E5DF] p-6 sm:p-10 space-y-8">
+          <div className="max-w-4xl bg-white border border-[#E8E5DF] p-6 sm:p-10 space-y-10">
             <div>
-              <h2 className="text-lg font-serif text-[#141414] mb-1">
-                Foto Utama (Hero) & Foto Profil Fotografer
+              <span className="text-[10px] tracking-[0.25em] uppercase text-[#787672] block mb-1">
+                KONTROL KONTEN UTAMA
+              </span>
+              <h2 className="text-xl font-serif text-[#141414] mb-1">
+                Profil, About, Pendekatan (Approach) &amp; Kontak
               </h2>
               <p className="text-xs text-[#787672]">
-                Ubah gambar sampul beranda paling atas dan potret diri fotografer pada bagian About.
+                Sesuaikan teks, filosofi pendekatan karya, narasi vendor, hingga informasi kontak langsung dari panel ini.
               </p>
             </div>
 
-            {/* Hero Image */}
-            <div className="space-y-4 pt-4 border-t border-[#E8E5DF]">
-              <label className="text-xs tracking-[0.15em] uppercase font-semibold text-[#141414] block">
-                Foto Sampul Hero Paling Atas
-              </label>
-              <div className="flex flex-col sm:flex-row gap-4 items-start">
-                <img
-                  src={heroUrl}
-                  alt="Hero Preview"
-                  className="w-full sm:w-48 h-32 object-cover border border-[#E8E5DF] bg-[#FAF8F5]"
-                />
-                <div className="space-y-2 flex-1 w-full">
-                  <input
-                    type="url"
-                    value={heroUrl}
-                    onChange={(e) => setHeroUrl(e.target.value)}
-                    placeholder="URL gambar hero..."
-                    className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
+            {/* SEKSI 1: FOTO HERO & PROFIL */}
+            <div className="space-y-6 pt-4 border-t border-[#E8E5DF]">
+              <h3 className="text-xs tracking-[0.15em] uppercase font-semibold text-[#141414] flex items-center gap-2">
+                <ImageIcon className="w-4 h-4" />
+                1. Gambar Sampul Hero &amp; Foto Profil
+              </h3>
+
+              {/* Hero Image */}
+              <div className="space-y-3 bg-[#FAF8F5] p-4 sm:p-5 border border-[#E8E5DF]">
+                <label className="text-xs font-medium text-[#141414] block">
+                  Foto Sampul Hero (Tampilan Beranda Paling Atas)
+                </label>
+                <div className="flex flex-col sm:flex-row gap-4 items-start">
+                  <img
+                    src={heroUrl}
+                    alt="Hero Preview"
+                    className="w-full sm:w-48 h-32 object-cover border border-[#E8E5DF] bg-white"
                   />
-                  <input
-                    ref={heroFileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={async (e) => {
-                      const f = e.target.files?.[0];
-                      if (f) {
-                        const dataUrl = await compressImageFile(f, 2000, 2000, 0.88);
-                        setHeroUrl(dataUrl);
-                      }
-                    }}
-                    className="hidden"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => heroFileInputRef.current?.click()}
-                    className="text-xs tracking-[0.1em] uppercase px-4 py-2 border border-[#D1CEC7] hover:border-[#141414] transition-colors cursor-pointer inline-flex items-center gap-2"
-                  >
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Pilih Foto dari Komputer</span>
-                  </button>
+                  <div className="space-y-2 flex-1 w-full">
+                    <input
+                      type="url"
+                      value={heroUrl}
+                      onChange={(e) => setHeroUrl(e.target.value)}
+                      placeholder="URL gambar hero..."
+                      className="w-full text-xs p-3 bg-white border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
+                    />
+                    <input
+                      ref={heroFileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0];
+                        if (f) {
+                          const dataUrl = await compressImageFile(f, 2000, 2000, 0.88);
+                          setHeroUrl(dataUrl);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => heroFileInputRef.current?.click()}
+                      className="text-xs tracking-[0.1em] uppercase px-4 py-2 border border-[#D1CEC7] hover:border-[#141414] transition-colors cursor-pointer inline-flex items-center gap-2 bg-white"
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Pilih Foto dari Komputer</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Profile Image */}
+              <div className="space-y-3 bg-[#FAF8F5] p-4 sm:p-5 border border-[#E8E5DF]">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-xs font-medium text-[#141414] block">
+                      Foto Potret Diri / Tim (About Section)
+                    </label>
+                    <span className="text-[11px] text-[#787672]">
+                      Opsional: Hapus foto jika Anda hanya ingin menonjolkan nama vendor dan karya foto saja.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 items-start">
+                  <div className="w-32 h-40 border border-[#E8E5DF] bg-white flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {profileImgUrl ? (
+                      <img
+                        src={profileImgUrl}
+                        alt="Profile Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center p-2 text-[#A8A59F]">
+                        <ImageIcon className="w-6 h-6 mx-auto mb-1 opacity-50" />
+                        <span className="text-[9px] uppercase tracking-wider block">Tanpa Foto</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2 flex-1 w-full">
+                    <input
+                      type="url"
+                      value={profileImgUrl}
+                      onChange={(e) => setProfileImgUrl(e.target.value)}
+                      placeholder="URL gambar potret profil (atau kosongkan untuk menghapus)..."
+                      className="w-full text-xs p-3 bg-white border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
+                    />
+                    <input
+                      ref={profileFileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0];
+                        if (f) {
+                          const dataUrl = await compressImageFile(f, 1200, 1200, 0.85);
+                          setProfileImgUrl(dataUrl);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => profileFileInputRef.current?.click()}
+                        className="text-xs tracking-[0.1em] uppercase px-4 py-2 border border-[#D1CEC7] hover:border-[#141414] transition-colors cursor-pointer inline-flex items-center gap-2 bg-white"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Pilih Foto dari Komputer</span>
+                      </button>
+
+                      {profileImgUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setProfileImgUrl('')}
+                          className="text-xs tracking-[0.1em] uppercase px-4 py-2 border border-red-200 hover:border-red-400 text-red-600 bg-red-50/50 hover:bg-red-100 transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                          title="Hapus foto profil"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Hapus Foto Profil</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Profile Image */}
+            {/* SEKSI 2: IDENTITAS VENDOR & PROFIL FOTOGRAFER */}
             <div className="space-y-4 pt-6 border-t border-[#E8E5DF]">
-              <label className="text-xs tracking-[0.15em] uppercase font-semibold text-[#141414] block">
-                Foto Profil Irkham (About Section)
-              </label>
-              <div className="flex flex-col sm:flex-row gap-4 items-start">
-                <img
-                  src={profileImgUrl}
-                  alt="Profile Preview"
-                  className="w-32 h-40 object-cover border border-[#E8E5DF] bg-[#FAF8F5]"
-                />
-                <div className="space-y-2 flex-1 w-full">
+              <h3 className="text-xs tracking-[0.15em] uppercase font-semibold text-[#141414] flex items-center gap-2">
+                <User className="w-4 h-4" />
+                2. Identitas Vendor &amp; Profil Utama
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-medium text-[#141414] block mb-1">
+                    Nama Vendor / Brand Utama
+                  </label>
                   <input
-                    type="url"
-                    value={profileImgUrl}
-                    onChange={(e) => setProfileImgUrl(e.target.value)}
-                    placeholder="URL gambar potret profil..."
+                    type="text"
+                    value={vendorName}
+                    onChange={(e) => setVendorName(e.target.value)}
+                    placeholder="Contoh: kham.photo atau Irkham Studio"
                     className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
                   />
+                  <span className="text-[10px] text-[#787672] mt-0.5 block">
+                    Nama brand yang disorot utama di logo navbar, hero, dan footer.
+                  </span>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-[#141414] block mb-1">
+                    Nama Pribadi Fotografer (Opsional)
+                  </label>
                   <input
-                    ref={profileFileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={async (e) => {
-                      const f = e.target.files?.[0];
-                      if (f) {
-                        const dataUrl = await compressImageFile(f, 1200, 1200, 0.85);
-                        setProfileImgUrl(dataUrl);
-                      }
-                    }}
-                    className="hidden"
+                    type="text"
+                    value={photographerName}
+                    onChange={(e) => setPhotographerName(e.target.value)}
+                    placeholder="Contoh: Irkham Fatkhurrozi"
+                    className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
                   />
-                  <button
-                    type="button"
-                    onClick={() => profileFileInputRef.current?.click()}
-                    className="text-xs tracking-[0.1em] uppercase px-4 py-2 border border-[#D1CEC7] hover:border-[#141414] transition-colors cursor-pointer inline-flex items-center gap-2"
-                  >
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Pilih Potret dari Komputer</span>
-                  </button>
+                  <span className="text-[10px] text-[#787672] mt-0.5 block">
+                    Tampil halus sebagai byline ("PHOTOGRAPHY • BY [NAMA]").
+                  </span>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-[#141414] block mb-1">
+                    Keahlian / Sub-judul Peran
+                  </label>
+                  <input
+                    type="text"
+                    value={roleTitle}
+                    onChange={(e) => setRoleTitle(e.target.value)}
+                    placeholder="Contoh: PHOTOGRAPHY"
+                    className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-[#141414] block mb-1">
+                    Lokasi Basis Studio &amp; Layanan
+                  </label>
+                  <input
+                    type="text"
+                    value={locationText}
+                    onChange={(e) => setLocationText(e.target.value)}
+                    placeholder="Contoh: Yogyakarta & Bali, Indonesia — Available Worldwide"
+                    className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-[#141414] block mb-1">
+                  Tagline Ringkas (Hero &amp; Metadata)
+                </label>
+                <input
+                  type="text"
+                  value={taglineText}
+                  onChange={(e) => setTaglineText(e.target.value)}
+                  placeholder="Contoh: Stories, moments, and people — captured honestly."
+                  className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-medium text-[#141414] block mb-1">
+                    Kalimat Pembuka About (Headline Quote)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={bioIntroText}
+                    onChange={(e) => setBioIntroText(e.target.value)}
+                    placeholder="Contoh: Hi, I'm Irkham — capturing honest moments, quiet details, and real stories."
+                    className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none leading-relaxed"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-[#141414] block mb-1">
+                    Kutipan Filosofi Bio (Body Quote)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={bioQuoteText}
+                    onChange={(e) => setBioQuoteText(e.target.value)}
+                    placeholder="Contoh: I believe good photographs don't need to be complicated. They simply need to make you feel something."
+                    className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none leading-relaxed"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* SEKSI 3: ABOUT APPROACH PHILOSOPHY */}
+            <div className="space-y-4 pt-6 border-t border-[#E8E5DF]">
+              <h3 className="text-xs tracking-[0.15em] uppercase font-semibold text-[#141414] flex items-center gap-2">
+                <Compass className="w-4 h-4" />
+                3. Filosofi Pendekatan (Our Approach)
+              </h3>
+              <p className="text-xs text-[#787672]">
+                Paragraf ini muncul pada kolom samping bagian <strong>Our Approach</strong> di halaman About untuk menjelaskan metode kerja Anda.
+              </p>
+
+              <div>
+                <label className="text-xs font-medium text-[#141414] block mb-1">
+                  Teks Pendekatan Filosofis
+                </label>
+                <textarea
+                  rows={4}
+                  value={approachText}
+                  onChange={(e) => setApproachText(e.target.value)}
+                  placeholder="Contoh: Kami percaya bahwa dokumentasi terbaik lahir dari interaksi yang tidak dipaksakan. Kami hadir sebagai pengamat yang cermat..."
+                  className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none leading-relaxed"
+                />
+              </div>
+            </div>
+
+            {/* SEKSI 4: INFORMASI KONTAK & BOOKING */}
+            <div className="space-y-4 pt-6 border-t border-[#E8E5DF]">
+              <h3 className="text-xs tracking-[0.15em] uppercase font-semibold text-[#141414] flex items-center gap-2">
+                <Phone className="w-4 h-4" />
+                4. Bagian Kontak &amp; Media Sosial
+              </h3>
+              <p className="text-xs text-[#787672]">
+                Atur headline kontak, teks pembuka, alamat email, WhatsApp, serta akun Instagram portofolio.
+              </p>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-[#141414] block mb-1">
+                    Judul Utama / Headline Bagian Kontak
+                  </label>
+                  <input
+                    type="text"
+                    value={contactHeadlineText}
+                    onChange={(e) => setContactHeadlineText(e.target.value)}
+                    placeholder="Contoh: Mari abadikan babak perjalanan berharga Anda bersama kami."
+                    className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-[#141414] block mb-1">
+                    Deskripsi / Ajakan Konsultasi
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={contactDescText}
+                    onChange={(e) => setContactDescText(e.target.value)}
+                    placeholder="Contoh: Jadwalkan sesi konsultasi gratis untuk mendiskusikan konsep visual dan tanggal istimewa Anda."
+                    className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none leading-relaxed"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                  <div>
+                    <label className="text-xs font-medium text-[#141414] flex items-center gap-1.5 mb-1">
+                      <Mail className="w-3.5 h-3.5 text-[#787672]" />
+                      Alamat Email
+                    </label>
+                    <input
+                      type="email"
+                      value={emailText}
+                      onChange={(e) => setEmailText(e.target.value)}
+                      placeholder="hello@vendor.com"
+                      className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-medium text-[#141414] flex items-center gap-1.5 mb-1">
+                      <MessageCircle className="w-3.5 h-3.5 text-[#787672]" />
+                      Link / URL WhatsApp
+                    </label>
+                    <input
+                      type="text"
+                      value={whatsappText}
+                      onChange={(e) => setWhatsappText(e.target.value)}
+                      placeholder="https://wa.me/6285161610146"
+                      className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-medium text-[#141414] flex items-center gap-1.5 mb-1">
+                      <Phone className="w-3.5 h-3.5 text-[#787672]" />
+                      Teks Tampilan WhatsApp
+                    </label>
+                    <input
+                      type="text"
+                      value={whatsappDisplayText}
+                      onChange={(e) => setWhatsappDisplayText(e.target.value)}
+                      placeholder="+62 851-6161-0146"
+                      className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-medium text-[#141414] flex items-center gap-1.5 mb-1">
+                      <Instagram className="w-3.5 h-3.5 text-[#787672]" />
+                      Link URL Instagram
+                    </label>
+                    <input
+                      type="text"
+                      value={instagramText}
+                      onChange={(e) => setInstagramText(e.target.value)}
+                      placeholder="https://instagram.com/kham.photo"
+                      className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-medium text-[#141414] flex items-center gap-1.5 mb-1">
+                      <Instagram className="w-3.5 h-3.5 text-[#787672]" />
+                      Username / Handle Instagram
+                    </label>
+                    <input
+                      type="text"
+                      value={instagramHandleText}
+                      onChange={(e) => setInstagramHandleText(e.target.value)}
+                      placeholder="@kham.photo"
+                      className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
             {brandSaved && (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center space-x-2">
-                <Check className="w-4 h-4" />
-                <span>Pengaturan gambar hero & profil berhasil disimpan!</span>
+              <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center space-x-2">
+                <Check className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span>Seluruh data Hero, Profil, Approach &amp; Kontak berhasil disimpan ke web utama!</span>
               </div>
             )}
 
-            <div className="pt-4">
+            <div className="pt-4 border-t border-[#E8E5DF] flex items-center justify-between">
+              <span className="text-xs text-[#787672]">
+                Perubahan langsung diterapkan ke tampilan web pengunjung.
+              </span>
               <button
                 type="button"
                 onClick={handleSaveBranding}
-                className="bg-[#141414] text-[#FAF8F5] px-6 py-3 text-xs tracking-[0.2em] uppercase font-medium hover:bg-[#333] transition-colors cursor-pointer"
+                className="bg-[#141414] text-[#FAF8F5] px-8 py-3.5 text-xs tracking-[0.2em] uppercase font-medium hover:bg-[#333] transition-colors cursor-pointer inline-flex items-center gap-2"
               >
-                Simpan Perubahan Hero & Profil
+                <Check className="w-4 h-4" />
+                Simpan Semua Perubahan
               </button>
             </div>
           </div>

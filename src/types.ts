@@ -29,6 +29,9 @@ export interface PhotographerProfile {
   portraitImage: string;
   bioIntro: string;
   bioQuote: string;
+  approachPhilosophy?: string;
+  contactHeadline?: string;
+  contactDescription?: string;
   email: string;
   whatsapp: string;
   whatsappDisplay: string;

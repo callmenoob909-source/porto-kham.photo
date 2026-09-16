@@ -1,5 +1,6 @@
 import { ArrowUp, SlidersHorizontal, Lock, Unlock } from 'lucide-react';
 import { PROFILE_DATA } from '../data/portfolio';
+import { PhotographerProfile } from '../types';
 
 interface FooterProps {
   onOpenEditor?: () => void;
@@ -7,6 +8,7 @@ interface FooterProps {
   onOpenAuth?: () => void;
   onLock?: () => void;
   onNavigateAdmin?: () => void;
+  profile?: PhotographerProfile;
 }
 
 export default function Footer({
@@ -15,6 +17,7 @@ export default function Footer({
   onOpenAuth,
   onLock,
   onNavigateAdmin,
+  profile = PROFILE_DATA,
 }: FooterProps) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -26,7 +29,7 @@ export default function Footer({
       className="py-12 sm:py-16 px-6 sm:px-10 max-w-7xl mx-auto border-t border-[#E8E5DF] flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-[#787672] tracking-[0.2em] uppercase"
     >
       <div className="flex items-center gap-1.5">
-        <span>&copy; 2026 {PROFILE_DATA.vendorName} &mdash; {PROFILE_DATA.name}</span>
+        <span>&copy; 2026 {profile.vendorName}{profile.name ? ` \u2014 by ${profile.name}` : ''}</span>
         
         {/* Discreet owner trigger to /admin */}
         <button

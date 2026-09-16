@@ -21,18 +21,20 @@ export default function Hero({
       aria-label="Introduction"
     >
       {/* Top Identity Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#E8E5DF] pb-6 sm:pb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#E8E5DF] pb-6 sm:pb-8 gap-4">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="space-y-1"
+          className="space-y-1.5"
         >
+          {/* Main Highlight: Vendor Brand */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal tracking-[0.16em] uppercase text-[#141414]">
-            {profile.name}
+            {profile.vendorName}
           </h1>
-          <p className="text-xs sm:text-sm tracking-[0.3em] text-[#787672] uppercase font-medium">
-            {profile.vendorName} &bull; PHOTOGRAPHY
+          {/* Discreet Personal byline */}
+          <p className="text-xs sm:text-sm tracking-[0.25em] text-[#787672] uppercase font-light">
+            PHOTOGRAPHY {profile.name ? `&bull; BY ${profile.name}` : ''}
           </p>
         </motion.div>
 

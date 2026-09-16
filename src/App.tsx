@@ -343,6 +343,7 @@ export default function App() {
         onOpenEditor={handleRequestOpenEditor}
         isOwner={false}
         onOpenAuth={handleRequestOpenEditor}
+        profile={profile}
       />
 
       {/* Main Content Area */}
@@ -366,7 +367,7 @@ export default function App() {
         <About profile={profile} />
 
         {/* Contact Section */}
-        <Contact />
+        <Contact profile={profile} />
       </main>
 
       {/* Minimalist Footer */}
@@ -376,6 +377,7 @@ export default function App() {
         onOpenAuth={handleRequestOpenEditor}
         onLock={handleCloseEditor}
         onNavigateAdmin={() => navigateTo('/admin')}
+        profile={profile}
       />
 
       {/* In-App Photo & Portfolio Editor Modal */}

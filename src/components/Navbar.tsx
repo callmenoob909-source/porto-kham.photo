@@ -2,15 +2,23 @@ import { useState, useEffect } from 'react';
 import { Menu, X, PlusCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PROFILE_DATA } from '../data/portfolio';
+import { PhotographerProfile } from '../types';
 
 interface NavbarProps {
   onNavigate?: (id: string) => void;
   onOpenEditor?: () => void;
   isOwner?: boolean;
   onOpenAuth?: () => void;
+  profile?: PhotographerProfile;
 }
 
-export default function Navbar({ onNavigate, onOpenEditor, isOwner = false, onOpenAuth }: NavbarProps) {
+export default function Navbar({
+  onNavigate,
+  onOpenEditor,
+  isOwner = false,
+  onOpenAuth,
+  profile = PROFILE_DATA,
+}: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [logoTapCount, setLogoTapCount] = useState(0);
@@ -62,7 +70,7 @@ export default function Navbar({ onNavigate, onOpenEditor, isOwner = false, onOp
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 sm:px-10 flex items-center justify-between">
-          {/* Logo / Brand */}
+          {/* Logo / Brand: Highlight vendorName prominently */}
           <a
             href="#"
             onClick={(e) => {
@@ -72,13 +80,13 @@ export default function Navbar({ onNavigate, onOpenEditor, isOwner = false, onOp
             }}
             id="brand-logo"
             className="group flex flex-col items-start focus:outline-none"
-            aria-label={`${PROFILE_DATA.name} - ${PROFILE_DATA.vendorName} Home`}
+            aria-label={`${profile.vendorName} Home`}
           >
-            <span className="text-base sm:text-lg font-medium tracking-[0.25em] uppercase text-[#141414] transition-opacity duration-300 group-hover:opacity-60">
-              {PROFILE_DATA.vendorName}
+            <span className="text-lg sm:text-xl font-medium tracking-[0.25em] uppercase text-[#141414] transition-opacity duration-300 group-hover:opacity-60">
+              {profile.vendorName}
             </span>
-            <span className="text-[9px] sm:text-[10px] tracking-[0.3em] uppercase text-[#787672] font-normal -mt-0.5">
-              {PROFILE_DATA.name}
+            <span className="text-[9px] tracking-[0.3em] uppercase text-[#787672]/80 font-light -mt-0.5">
+              PHOTOGRAPHY
             </span>
           </a>
 
@@ -189,14 +197,19 @@ export default function Navbar({ onNavigate, onOpenEditor, isOwner = false, onOp
             </div>
 
             <div className="mt-16 pt-8 border-t border-[#E8E5DF] flex flex-col space-y-2">
-              <span className="text-xs text-[#787672] tracking-wider">
-                {PROFILE_DATA.vendorName} — {PROFILE_DATA.name}
+              <span className="text-sm text-[#141414] font-medium tracking-[0.2em] uppercase">
+                {profile.vendorName}
               </span>
-              <span className="text-xs tracking-[0.2em] uppercase text-[#141414]">
-                {PROFILE_DATA.email}
+              {profile.name && (
+                <span className="text-xs text-[#787672] tracking-wider">
+                  by {profile.name}
+                </span>
+              )}
+              <span className="text-xs tracking-[0.2em] uppercase text-[#141414] pt-1">
+                {profile.email}
               </span>
               <span className="text-xs tracking-[0.1em] text-[#787672]">
-                {PROFILE_DATA.whatsappDisplay}
+                {profile.whatsappDisplay}
               </span>
             </div>
           </motion.div>

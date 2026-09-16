@@ -1,9 +1,14 @@
 import { motion } from 'motion/react';
 import { ArrowUpRight, Mail, MessageCircle, Instagram } from 'lucide-react';
 import { PROFILE_DATA } from '../data/portfolio';
+import { PhotographerProfile } from '../types';
 
-export default function Contact() {
-  const mailtoUrl = `mailto:${PROFILE_DATA.email}?subject=${encodeURIComponent('Inquiry: Photography Collaboration / Session')}`;
+interface ContactProps {
+  profile?: PhotographerProfile;
+}
+
+export default function Contact({ profile = PROFILE_DATA }: ContactProps) {
+  const mailtoUrl = `mailto:${profile.email}?subject=${encodeURIComponent(`Inquiry: Photography Collaboration / Session with ${profile.vendorName}`)}`;
 
   return (
     <section
@@ -20,15 +25,15 @@ export default function Contact() {
           className="space-y-6"
         >
           <span className="text-[11px] tracking-[0.3em] uppercase text-[#787672] block font-medium">
-            CONTACT &amp; BOOKINGS
+            CONTACT &amp; BOOKINGS &bull; {profile.vendorName}
           </span>
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-normal tracking-[0.12em] uppercase text-[#141414] leading-[1.15]">
-            LET'S CREATE SOMETHING MEANINGFUL.
+            {profile.contactHeadline || "LET'S CREATE SOMETHING MEANINGFUL."}
           </h2>
 
           <p className="text-base sm:text-lg text-[#666460] font-light leading-relaxed max-w-xl">
-            For collaborations, events, portraits, or simply to say hello, feel free to get in touch.
+            {profile.contactDescription || `For wedding, prewedding, portraits, or commercial inquiries with ${profile.vendorName}, feel free to reach out.`}
           </p>
 
           <div className="pt-2">
@@ -54,7 +59,7 @@ export default function Contact() {
           {/* Instagram */}
           <a
             id="contact-channel-instagram"
-            href={PROFILE_DATA.instagram}
+            href={profile.instagram}
             target="_blank"
             rel="noopener noreferrer"
             className="group flex flex-col space-y-1 focus:outline-none"
@@ -64,7 +69,7 @@ export default function Contact() {
               <span>Instagram</span>
             </div>
             <span className="text-sm font-medium text-[#141414] group-hover:text-[#787672] transition-colors flex items-center">
-              {PROFILE_DATA.instagramHandle}
+              {profile.instagramHandle}
               <ArrowUpRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
             </span>
           </a>
@@ -72,7 +77,7 @@ export default function Contact() {
           {/* WhatsApp */}
           <a
             id="contact-channel-whatsapp"
-            href={PROFILE_DATA.whatsapp}
+            href={profile.whatsapp}
             target="_blank"
             rel="noopener noreferrer"
             className="group flex flex-col space-y-1 focus:outline-none"
@@ -82,7 +87,7 @@ export default function Contact() {
               <span>WhatsApp</span>
             </div>
             <span className="text-sm font-medium text-[#141414] group-hover:text-[#787672] transition-colors flex items-center">
-              {PROFILE_DATA.whatsappDisplay}
+              {profile.whatsappDisplay}
               <ArrowUpRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
             </span>
           </a>
@@ -90,7 +95,7 @@ export default function Contact() {
           {/* Email */}
           <a
             id="contact-channel-email"
-            href={`mailto:${PROFILE_DATA.email}`}
+            href={`mailto:${profile.email}`}
             className="group flex flex-col space-y-1 focus:outline-none"
           >
             <div className="flex items-center space-x-2 text-[11px] tracking-[0.25em] uppercase text-[#787672]">
@@ -98,7 +103,7 @@ export default function Contact() {
               <span>Email</span>
             </div>
             <span className="text-sm font-medium text-[#141414] group-hover:text-[#787672] transition-colors break-all flex items-center">
-              {PROFILE_DATA.email}
+              {profile.email}
               <ArrowUpRight className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
             </span>
           </a>

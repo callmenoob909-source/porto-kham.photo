@@ -1,4 +1,4 @@
-import { useState, useRef, type ChangeEvent, type FormEvent } from 'react';
+import { useState, useEffect, useRef, type ChangeEvent, type FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
@@ -13,6 +13,12 @@ import {
   Link as LinkIcon,
   Image as ImageIcon,
   Lock,
+  User,
+  Compass,
+  Phone,
+  Mail,
+  Instagram,
+  MessageCircle,
 } from 'lucide-react';
 import { CategoryId, PhotoWork, PhotographerProfile } from '../types';
 import { CATEGORIES } from '../data/portfolio';
@@ -66,6 +72,47 @@ export default function PhotoEditorModal({
   const [heroUrl, setHeroUrl] = useState(heroImage.url);
   const [profileImgUrl, setProfileImgUrl] = useState(profile.portraitImage);
   const [brandSaved, setBrandSaved] = useState(false);
+
+  // Editable Profile, Approach & Contact form state
+  const [vendorName, setVendorName] = useState(profile.vendorName || profile.name || '');
+  const [photographerName, setPhotographerName] = useState(profile.name || '');
+  const [roleTitle, setRoleTitle] = useState(profile.role || '');
+  const [taglineText, setTaglineText] = useState(profile.tagline || '');
+  const [bioIntroText, setBioIntroText] = useState(profile.bioIntro || '');
+  const [bioQuoteText, setBioQuoteText] = useState(profile.bioQuote || '');
+  const [locationText, setLocationText] = useState(profile.location || '');
+  const [approachText, setApproachText] = useState(profile.approachPhilosophy || '');
+  const [contactHeadlineText, setContactHeadlineText] = useState(profile.contactHeadline || '');
+  const [contactDescText, setContactDescText] = useState(profile.contactDescription || '');
+  const [emailText, setEmailText] = useState(profile.email || '');
+  const [whatsappText, setWhatsappText] = useState(profile.whatsapp || '');
+  const [whatsappDisplayText, setWhatsappDisplayText] = useState(profile.whatsappDisplay || '');
+  const [instagramText, setInstagramText] = useState(profile.instagram || '');
+  const [instagramHandleText, setInstagramHandleText] = useState(profile.instagramHandle || '');
+
+  // Keep profile state synced when profile prop changes
+  useEffect(() => {
+    setProfileImgUrl(profile.portraitImage);
+    setVendorName(profile.vendorName || profile.name || '');
+    setPhotographerName(profile.name || '');
+    setRoleTitle(profile.role || '');
+    setTaglineText(profile.tagline || '');
+    setBioIntroText(profile.bioIntro || '');
+    setBioQuoteText(profile.bioQuote || '');
+    setLocationText(profile.location || '');
+    setApproachText(profile.approachPhilosophy || '');
+    setContactHeadlineText(profile.contactHeadline || '');
+    setContactDescText(profile.contactDescription || '');
+    setEmailText(profile.email || '');
+    setWhatsappText(profile.whatsapp || '');
+    setWhatsappDisplayText(profile.whatsappDisplay || '');
+    setInstagramText(profile.instagram || '');
+    setInstagramHandleText(profile.instagramHandle || '');
+  }, [profile]);
+
+  useEffect(() => {
+    setHeroUrl(heroImage.url);
+  }, [heroImage]);
 
   // PIN security form state
   const [newPinInput, setNewPinInput] = useState('');
@@ -217,6 +264,21 @@ export default function PhotoEditorModal({
     });
     onSaveProfile({
       ...profile,
+      vendorName: vendorName.trim() || profile.vendorName,
+      name: photographerName.trim(),
+      role: roleTitle.trim() || profile.role,
+      tagline: taglineText.trim() || profile.tagline,
+      bioIntro: bioIntroText.trim() || profile.bioIntro,
+      bioQuote: bioQuoteText.trim() || profile.bioQuote,
+      location: locationText.trim() || profile.location,
+      approachPhilosophy: approachText.trim(),
+      contactHeadline: contactHeadlineText.trim(),
+      contactDescription: contactDescText.trim(),
+      email: emailText.trim() || profile.email,
+      whatsapp: whatsappText.trim() || profile.whatsapp,
+      whatsappDisplay: whatsappDisplayText.trim() || whatsappText.trim() || profile.whatsappDisplay,
+      instagram: instagramText.trim() || profile.instagram,
+      instagramHandle: instagramHandleText.trim() || profile.instagramHandle,
       portraitImage: profileImgUrl,
     });
     setBrandSaved(true);
@@ -290,7 +352,7 @@ export default function PhotoEditorModal({
                   : 'border-transparent text-[#787672] hover:text-[#141414]'
               }`}
             >
-              Foto Hero &amp; Profil
+              Profil, About &amp; Kontak
             </button>
             <button
               id="tab-btn-export"
@@ -643,17 +705,24 @@ export default function PhotoEditorModal({
                       Foto Profil Fotografer (Section About)
                     </h4>
                     <p className="text-xs text-[#787672]">
-                      Potret Anda yang ditampilkan berdampingan dengan narasi About.
+                      Potret diri Anda di samping narasi profil. Anda dapat mengganti atau menghapusnya jika ingin fokus sepenuhnya pada karya dan vendor.
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                    <div className="md:col-span-4 aspect-[3/4] max-w-[180px] overflow-hidden bg-[#E8E5DF]">
-                      <img
-                        src={profileImgUrl}
-                        alt="Profile preview"
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="md:col-span-4 aspect-[3/4] max-w-[180px] overflow-hidden bg-[#E8E5DF] border border-[#E8E5DF] relative flex items-center justify-center">
+                      {profileImgUrl ? (
+                        <img
+                          src={profileImgUrl}
+                          alt="Profile preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="p-4 text-center text-[#787672]">
+                          <ImageIcon className="w-8 h-8 mx-auto mb-1 opacity-40" />
+                          <span className="text-[10px] uppercase tracking-wider block">Tanpa Foto Profil</span>
+                        </div>
+                      )}
                     </div>
                     <div className="md:col-span-8 space-y-3">
                       <input
@@ -663,14 +732,28 @@ export default function PhotoEditorModal({
                         accept="image/*"
                         className="hidden"
                       />
-                      <button
-                        type="button"
-                        onClick={() => profileFileInputRef.current?.click()}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#141414] text-[#FAF8F5] text-xs uppercase tracking-wider font-medium hover:bg-[#333] transition-colors cursor-pointer"
-                      >
-                        <Upload className="w-4 h-4" />
-                        Ganti Foto Profil dari Perangkat
-                      </button>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => profileFileInputRef.current?.click()}
+                          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#141414] text-[#FAF8F5] text-xs uppercase tracking-wider font-medium hover:bg-[#333] transition-colors cursor-pointer"
+                        >
+                          <Upload className="w-4 h-4" />
+                          Ganti Foto Profil
+                        </button>
+
+                        {profileImgUrl && (
+                          <button
+                            type="button"
+                            onClick={() => setProfileImgUrl('')}
+                            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-red-200 text-red-600 bg-red-50/50 hover:bg-red-100/60 text-xs uppercase tracking-wider font-medium transition-colors cursor-pointer"
+                            title="Hapus foto profil fotografer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Hapus Foto Profil
+                          </button>
+                        )}
+                      </div>
 
                       <div className="pt-2">
                         <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
@@ -681,7 +764,239 @@ export default function PhotoEditorModal({
                           value={profileImgUrl}
                           onChange={(e) => setProfileImgUrl(e.target.value)}
                           className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414]"
-                          placeholder="https://..."
+                          placeholder="Kosongkan jika ingin menghapus foto profil"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Vendor Identity & Profile */}
+                <div className="bg-white p-6 border border-[#E8E5DF] space-y-4">
+                  <div className="flex items-center gap-2 border-b border-[#E8E5DF] pb-3">
+                    <User className="w-4 h-4 text-[#141414]" />
+                    <h4 className="text-sm font-medium tracking-[0.15em] uppercase text-[#141414]">
+                      Identitas Vendor &amp; Profil
+                    </h4>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
+                        Nama Vendor / Brand Utama:
+                      </label>
+                      <input
+                        type="text"
+                        value={vendorName}
+                        onChange={(e) => setVendorName(e.target.value)}
+                        className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414]"
+                        placeholder="Contoh: kham.photo atau Irkham Studio"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
+                        Nama Pribadi Fotografer (Opsional):
+                      </label>
+                      <input
+                        type="text"
+                        value={photographerName}
+                        onChange={(e) => setPhotographerName(e.target.value)}
+                        className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414]"
+                        placeholder="Contoh: Irkham Fatkhurrozi"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
+                        Keahlian / Sub-judul:
+                      </label>
+                      <input
+                        type="text"
+                        value={roleTitle}
+                        onChange={(e) => setRoleTitle(e.target.value)}
+                        className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414]"
+                        placeholder="Contoh: PHOTOGRAPHY"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
+                        Lokasi Basis &amp; Layanan:
+                      </label>
+                      <input
+                        type="text"
+                        value={locationText}
+                        onChange={(e) => setLocationText(e.target.value)}
+                        className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414]"
+                        placeholder="Contoh: Yogyakarta & Bali, Indonesia — Available Worldwide"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
+                      Tagline Ringkas:
+                    </label>
+                    <input
+                      type="text"
+                      value={taglineText}
+                      onChange={(e) => setTaglineText(e.target.value)}
+                      className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414]"
+                      placeholder="Contoh: Stories, moments, and people — captured honestly."
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
+                        Kalimat Pembuka About (Headline):
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={bioIntroText}
+                        onChange={(e) => setBioIntroText(e.target.value)}
+                        className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414] leading-relaxed"
+                        placeholder="Contoh: Hi, I'm Irkham — capturing honest moments..."
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
+                        Kutipan Filosofi Bio:
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={bioQuoteText}
+                        onChange={(e) => setBioQuoteText(e.target.value)}
+                        className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414] leading-relaxed"
+                        placeholder="Contoh: I believe good photographs don't need to be complicated..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Approach Philosophy */}
+                <div className="bg-white p-6 border border-[#E8E5DF] space-y-4">
+                  <div className="flex items-center gap-2 border-b border-[#E8E5DF] pb-3">
+                    <Compass className="w-4 h-4 text-[#141414]" />
+                    <h4 className="text-sm font-medium tracking-[0.15em] uppercase text-[#141414]">
+                      Filosofi Pendekatan (Our Approach)
+                    </h4>
+                  </div>
+                  <p className="text-xs text-[#787672]">
+                    Teks ini tampil di kolom samping bagian Our Approach pada section About.
+                  </p>
+                  <div>
+                    <textarea
+                      rows={3}
+                      value={approachText}
+                      onChange={(e) => setApproachText(e.target.value)}
+                      className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414] leading-relaxed"
+                      placeholder="Tuliskan filosofi kerja visual studio Anda..."
+                    />
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="bg-white p-6 border border-[#E8E5DF] space-y-4">
+                  <div className="flex items-center gap-2 border-b border-[#E8E5DF] pb-3">
+                    <Phone className="w-4 h-4 text-[#141414]" />
+                    <h4 className="text-sm font-medium tracking-[0.15em] uppercase text-[#141414]">
+                      Informasi Kontak &amp; Booking
+                    </h4>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
+                        Judul Utama Bagian Kontak:
+                      </label>
+                      <input
+                        type="text"
+                        value={contactHeadlineText}
+                        onChange={(e) => setContactHeadlineText(e.target.value)}
+                        className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414]"
+                        placeholder="Contoh: Mari abadikan babak perjalanan berharga Anda bersama kami."
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
+                        Deskripsi / Ajakan Konsultasi:
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={contactDescText}
+                        onChange={(e) => setContactDescText(e.target.value)}
+                        className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414] leading-relaxed"
+                        placeholder="Contoh: Jadwalkan sesi konsultasi gratis..."
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                      <div>
+                        <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
+                          Email:
+                        </label>
+                        <input
+                          type="email"
+                          value={emailText}
+                          onChange={(e) => setEmailText(e.target.value)}
+                          className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414]"
+                          placeholder="hello@vendor.com"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
+                          Link URL WhatsApp:
+                        </label>
+                        <input
+                          type="text"
+                          value={whatsappText}
+                          onChange={(e) => setWhatsappText(e.target.value)}
+                          className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414]"
+                          placeholder="https://wa.me/6285161610146"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
+                          Teks Tampilan WhatsApp:
+                        </label>
+                        <input
+                          type="text"
+                          value={whatsappDisplayText}
+                          onChange={(e) => setWhatsappDisplayText(e.target.value)}
+                          className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414]"
+                          placeholder="+62 851-6161-0146"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
+                          Link URL Instagram:
+                        </label>
+                        <input
+                          type="text"
+                          value={instagramText}
+                          onChange={(e) => setInstagramText(e.target.value)}
+                          className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414]"
+                          placeholder="https://instagram.com/kham.photo"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
+                          Username / Handle Instagram:
+                        </label>
+                        <input
+                          type="text"
+                          value={instagramHandleText}
+                          onChange={(e) => setInstagramHandleText(e.target.value)}
+                          className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414]"
+                          placeholder="@kham.photo"
                         />
                       </div>
                     </div>
@@ -691,10 +1006,10 @@ export default function PhotoEditorModal({
                 <div className="flex items-center justify-between pt-4 border-t border-[#E8E5DF]">
                   {brandSaved ? (
                     <span className="text-xs text-green-700 font-medium flex items-center gap-1">
-                      <Check className="w-4 h-4" /> Foto Hero &amp; Profil berhasil disimpan!
+                      <Check className="w-4 h-4" /> Seluruh data Profil, Approach &amp; Kontak berhasil disimpan!
                     </span>
                   ) : (
-                    <span className="text-xs text-[#787672]">Klik simpan untuk menerapkan perubahan</span>
+                    <span className="text-xs text-[#787672]">Klik simpan untuk menerapkan seluruh perubahan ke web utama</span>
                   )}
                   <button
                     type="button"
@@ -702,7 +1017,7 @@ export default function PhotoEditorModal({
                     className="inline-flex items-center gap-2 bg-[#141414] text-[#FAF8F5] px-8 py-3 text-xs tracking-[0.2em] uppercase font-medium hover:bg-[#333] transition-colors cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
-                    Simpan Perubahan
+                    Simpan Semua Perubahan
                   </button>
                 </div>
               </div>
