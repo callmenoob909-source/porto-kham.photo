@@ -72,40 +72,9 @@ export default function WorkGallery({ works, onSelectPhoto, onOpenEditor, isOwne
         </div>
       </div>
 
-      {/* Natural Masonry Photography Gallery */}
-      <div className="hidden lg:grid lg:grid-cols-3 gap-8 items-start">
-        {/* Column 1 */}
-        <div className="flex flex-col gap-8">
-          {filteredWorks
-            .filter((_, i) => i % 3 === 0)
-            .map((work, colIndex) => renderPhotoCard(work, colIndex * 3))}
-        </div>
-        {/* Column 2 */}
-        <div className="flex flex-col gap-8">
-          {filteredWorks
-            .filter((_, i) => i % 3 === 1)
-            .map((work, colIndex) => renderPhotoCard(work, colIndex * 3 + 1))}
-        </div>
-        {/* Column 3 */}
-        <div className="flex flex-col gap-8">
-          {filteredWorks
-            .filter((_, i) => i % 3 === 2)
-            .map((work, colIndex) => renderPhotoCard(work, colIndex * 3 + 2))}
-        </div>
-      </div>
-
-      {/* Tablet & Mobile Layout */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-6 sm:gap-8 items-start">
-        <div className="flex flex-col gap-6 sm:gap-8">
-          {filteredWorks
-            .filter((_, i) => i % 2 === 0)
-            .map((work, colIndex) => renderPhotoCard(work, colIndex * 2))}
-        </div>
-        <div className="flex flex-col gap-6 sm:gap-8">
-          {filteredWorks
-            .filter((_, i) => i % 2 === 1)
-            .map((work, colIndex) => renderPhotoCard(work, colIndex * 2 + 1))}
-        </div>
+      {/* Single Photo Feed (1 per 1 foto) */}
+      <div className="max-w-3xl mx-auto flex flex-col gap-16 sm:gap-24 items-center">
+        {filteredWorks.map((work, index) => renderPhotoCard(work, index))}
       </div>
     </section>
   );
@@ -114,11 +83,11 @@ export default function WorkGallery({ works, onSelectPhoto, onOpenEditor, isOwne
     return (
       <motion.div
         key={work.id}
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.98 }}
-        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="group cursor-pointer w-full"
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="group cursor-pointer w-full flex flex-col items-center"
         onClick={() => onSelectPhoto(work, originalIndex, filteredWorks)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -130,20 +99,20 @@ export default function WorkGallery({ works, onSelectPhoto, onOpenEditor, isOwne
         role="button"
         aria-label={`Lihat foto ${work.title}`}
       >
-        {/* Image Box - Natural Height according to uploaded image */}
-        <div className="relative w-full overflow-hidden bg-[#E8E5DF]/30 rounded-none border border-[#E8E5DF]/40 transition-all duration-500 group-hover:border-[#141414]/20 group-hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
+        {/* Image Box - Natural Height, centered with elegant framing */}
+        <div className="relative w-full overflow-hidden bg-[#E8E5DF]/30 rounded-none border border-[#E8E5DF]/50 transition-all duration-500 group-hover:border-[#141414]/20 group-hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)]">
           <img
             src={work.image}
             alt={work.alt}
             loading="lazy"
             referrerPolicy="no-referrer"
-            className="w-full h-auto block object-cover filter contrast-[1.01] transition-transform duration-700 ease-out group-hover:scale-[1.025]"
+            className="w-full h-auto block object-cover filter contrast-[1.01] transition-transform duration-700 ease-out group-hover:scale-[1.015]"
           />
           {/* Subtle hover scrim */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-500 pointer-events-none" />
 
           {/* Category Tag pill on hover */}
-          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute top-5 right-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <span className="bg-[#FAF8F5]/95 backdrop-blur-md text-[#141414] text-[10px] tracking-[0.2em] uppercase px-3 py-1 font-medium shadow-sm">
               {work.categoryLabel}
             </span>
@@ -151,17 +120,17 @@ export default function WorkGallery({ works, onSelectPhoto, onOpenEditor, isOwne
         </div>
 
         {/* Editorial Caption Below Image */}
-        <div className="mt-3.5 flex items-baseline justify-between px-0.5">
+        <div className="mt-4 flex items-baseline justify-between w-full px-1">
           <div>
-            <h3 className="text-sm sm:text-base font-normal tracking-wide text-[#141414] group-hover:text-[#787672] transition-colors duration-300">
+            <h3 className="text-base sm:text-lg font-normal tracking-wide text-[#141414] group-hover:text-[#787672] transition-colors duration-300">
               {work.title}
             </h3>
-            <p className="text-[11px] tracking-[0.18em] uppercase text-[#787672] mt-0.5 font-normal">
+            <p className="text-[11px] sm:text-xs tracking-[0.18em] uppercase text-[#787672] mt-1 font-normal">
               {work.categoryLabel} {work.location ? `— ${work.location}` : ''}
             </p>
           </div>
           {work.year && (
-            <span className="text-[11px] text-[#787672]/70 font-mono tracking-wider ml-2 shrink-0">
+            <span className="text-xs text-[#787672]/70 font-mono tracking-wider ml-4 shrink-0">
               {work.year}
             </span>
           )}
