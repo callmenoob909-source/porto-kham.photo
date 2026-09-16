@@ -14,7 +14,7 @@ export const CATEGORIES: { id: CategoryId; label: string }[] = [
 export const PROFILE_DATA: PhotographerProfile = {
   name: 'IRKHAM FATKHURROZI',
   vendorName: 'kham.photo',
-  role: 'PHOTOGRAPHY',
+  role: '',
   tagline: 'Stories, moments, and people — captured honestly.',
   // High quality minimalist photographer portrait with natural light
   portraitImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=85',

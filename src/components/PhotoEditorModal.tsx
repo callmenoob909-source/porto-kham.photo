@@ -266,7 +266,7 @@ export default function PhotoEditorModal({
       ...profile,
       vendorName: vendorName.trim() || profile.vendorName,
       name: photographerName.trim(),
-      role: roleTitle.trim() || profile.role,
+      role: roleTitle.trim(),
       tagline: taglineText.trim() || profile.tagline,
       bioIntro: bioIntroText.trim() || profile.bioIntro,
       bioQuote: bioQuoteText.trim() || profile.bioQuote,
@@ -809,14 +809,14 @@ export default function PhotoEditorModal({
 
                     <div>
                       <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1">
-                        Keahlian / Sub-judul:
+                        Sub-judul / Keahlian (Opsional):
                       </label>
                       <input
                         type="text"
                         value={roleTitle}
                         onChange={(e) => setRoleTitle(e.target.value)}
                         className="w-full px-3 py-2 border border-[#D1CEC7] text-xs focus:outline-none focus:border-[#141414]"
-                        placeholder="Contoh: PHOTOGRAPHY"
+                        placeholder="Kosongkan jika tidak ingin menampilkan sub-judul"
                       />
                     </div>
 

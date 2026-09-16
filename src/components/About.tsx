@@ -34,7 +34,7 @@ export default function About({ profile = PROFILE_DATA }: AboutProps) {
                 className="w-full h-full object-cover object-center filter contrast-[1.02] grayscale-[15%]"
               />
               <div className="absolute bottom-4 left-4 text-[10px] tracking-[0.25em] uppercase text-[#FAF8F5]/90 bg-black/40 backdrop-blur-sm px-2.5 py-1">
-                {profile.vendorName} {profile.name ? `&bull; ${profile.name}` : ''}
+                {profile.vendorName} {profile.name ? `• ${profile.name}` : ''}
               </div>
             </div>
           </motion.div>

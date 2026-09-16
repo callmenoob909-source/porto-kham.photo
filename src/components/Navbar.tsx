@@ -85,9 +85,11 @@ export default function Navbar({
             <span className="text-lg sm:text-xl font-medium tracking-[0.25em] uppercase text-[#141414] transition-opacity duration-300 group-hover:opacity-60">
               {profile.vendorName}
             </span>
-            <span className="text-[9px] tracking-[0.3em] uppercase text-[#787672]/80 font-light -mt-0.5">
-              PHOTOGRAPHY
-            </span>
+            {profile.role ? (
+              <span className="text-[9px] tracking-[0.3em] uppercase text-[#787672]/80 font-light -mt-0.5">
+                {profile.role}
+              </span>
+            ) : null}
           </a>
 
           {/* Desktop Navigation */}

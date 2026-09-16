@@ -32,10 +32,14 @@ export default function Hero({
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal tracking-[0.16em] uppercase text-[#141414]">
             {profile.vendorName}
           </h1>
-          {/* Discreet Personal byline */}
-          <p className="text-xs sm:text-sm tracking-[0.25em] text-[#787672] uppercase font-light">
-            PHOTOGRAPHY {profile.name ? `&bull; BY ${profile.name}` : ''}
-          </p>
+          {/* Dynamic Role / Sub-title or Discreet Personal byline */}
+          {(profile.role?.trim() || profile.name?.trim()) && (
+            <p className="text-xs sm:text-sm tracking-[0.25em] text-[#787672] uppercase font-light">
+              {profile.role?.trim() || ''}
+              {profile.role?.trim() && profile.name?.trim() ? ' — ' : ''}
+              {profile.name?.trim() ? `BY ${profile.name.trim()}` : ''}
+            </p>
+          )}
         </motion.div>
 
         <motion.div

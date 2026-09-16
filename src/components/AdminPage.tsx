@@ -288,7 +288,7 @@ export default function AdminPage({
       ...profile,
       vendorName: vendorName.trim() || profile.vendorName,
       name: photographerName.trim(),
-      role: roleTitle.trim() || profile.role,
+      role: roleTitle.trim(),
       tagline: taglineText.trim() || profile.tagline,
       bioIntro: bioIntroText.trim() || profile.bioIntro,
       bioQuote: bioQuoteText.trim() || profile.bioQuote,
@@ -997,21 +997,24 @@ export default function AdminPage({
                     className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
                   />
                   <span className="text-[10px] text-[#787672] mt-0.5 block">
-                    Tampil halus sebagai byline ("PHOTOGRAPHY • BY [NAMA]").
+                    Tampil halus sebagai byline ("BY [NAMA]" atau bisa dikosongkan).
                   </span>
                 </div>
 
                 <div>
                   <label className="text-xs font-medium text-[#141414] block mb-1">
-                    Keahlian / Sub-judul Peran
+                    Sub-judul / Keahlian (Opsional)
                   </label>
                   <input
                     type="text"
                     value={roleTitle}
                     onChange={(e) => setRoleTitle(e.target.value)}
-                    placeholder="Contoh: PHOTOGRAPHY"
+                    placeholder="Kosongkan jika tidak ingin menampilkan sub-judul"
                     className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none"
                   />
+                  <span className="text-[10px] text-[#787672] mt-0.5 block">
+                    Bisa dikosongkan agar tampilan murni hanya nama vendor saja.
+                  </span>
                 </div>
 
                 <div>
