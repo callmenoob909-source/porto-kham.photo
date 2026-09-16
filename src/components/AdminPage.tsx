@@ -604,8 +604,8 @@ export default function AdminPage({
                   />
                 </div>
 
-                {/* Category & Orientation */}
-                <div className="grid grid-cols-2 gap-4">
+                {/* Category, Location & Year */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="text-[11px] tracking-[0.15em] uppercase text-[#787672] block mb-1.5 font-medium">
                       Kategori *
@@ -623,23 +623,6 @@ export default function AdminPage({
                     </select>
                   </div>
 
-                  <div>
-                    <label className="text-[11px] tracking-[0.15em] uppercase text-[#787672] block mb-1.5 font-medium">
-                      Orientasi Tampilan
-                    </label>
-                    <select
-                      value={aspectRatio}
-                      onChange={(e) => setAspectRatio(e.target.value as 'portrait' | 'landscape')}
-                      className="w-full text-xs p-3 bg-[#FAF8F5] border border-[#D1CEC7] focus:border-[#141414] focus:outline-none transition-colors uppercase cursor-pointer"
-                    >
-                      <option value="portrait">Portrait (Tegak)</option>
-                      <option value="landscape">Landscape (Mendatar)</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Location & Year */}
-                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-[11px] tracking-[0.15em] uppercase text-[#787672] block mb-1.5 font-medium">
                       Lokasi (Opsional)
@@ -728,8 +711,8 @@ export default function AdminPage({
                           <span className="text-[9px] tracking-[0.2em] uppercase px-2 py-0.5 bg-[#FAF8F5] border border-[#E8E5DF] text-[#141414] font-medium">
                             {work.category}
                           </span>
-                          <span className="text-[10px] text-[#787672] uppercase">
-                            {work.aspectRatio} &bull; {work.year || '2026'}
+                          <span className="text-[10px] text-[#787672] uppercase font-mono">
+                            {work.year || '2026'}
                           </span>
                         </div>
                         <h3 className="text-sm font-medium text-[#141414] truncate">

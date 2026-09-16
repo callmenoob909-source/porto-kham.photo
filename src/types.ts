@@ -14,8 +14,8 @@ export interface PhotoWork {
   category: CategoryId;
   categoryLabel: string;
   image: string;
-  aspectRatio: 'portrait' | 'landscape' | 'square' | 'panoramic';
-  orientation: 'vertical' | 'horizontal';
+  aspectRatio?: 'portrait' | 'landscape' | 'square' | 'panoramic';
+  orientation?: 'vertical' | 'horizontal';
   year?: string;
   location?: string;
   alt: string;

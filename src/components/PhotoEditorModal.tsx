@@ -461,20 +461,6 @@ export default function PhotoEditorModal({
 
                       <div>
                         <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1 font-medium">
-                          Bentuk / Orientasi Foto
-                        </label>
-                        <select
-                          value={aspectRatio}
-                          onChange={(e) => setAspectRatio(e.target.value as 'portrait' | 'landscape')}
-                          className="w-full px-3.5 py-2 bg-white border border-[#D1CEC7] text-sm focus:outline-none focus:border-[#141414]"
-                        >
-                          <option value="portrait">Portrait (Foto Tegak / Vertikal)</option>
-                          <option value="landscape">Landscape (Foto Melebar / Horisontal)</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] uppercase tracking-wider text-[#787672] mb-1 font-medium">
                           Lokasi (Opsional)
                         </label>
                         <input
@@ -565,7 +551,7 @@ export default function PhotoEditorModal({
                               {item.title}
                             </h5>
                             <p className="text-[11px] text-[#787672] tracking-wider uppercase">
-                              {item.categoryLabel} &bull; {item.aspectRatio} {item.location ? `&bull; ${item.location}` : ''}
+                              {item.categoryLabel} {item.location ? `&bull; ${item.location}` : ''}
                             </p>
                           </div>
                         </div>

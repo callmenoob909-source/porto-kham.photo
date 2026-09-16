@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { CategoryId, PhotoWork } from '../types';
 import { CATEGORIES } from '../data/portfolio';
 
@@ -26,22 +26,20 @@ export default function WorkGallery({ works, onSelectPhoto, onOpenEditor, isOwne
       className="pt-24 sm:pt-32 pb-24 sm:pb-36 px-6 sm:px-10 max-w-7xl mx-auto"
       aria-label="Selected Works Portfolio"
     >
-      {/* Section Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-[#E8E5DF] pb-8 mb-12 sm:mb-16 gap-6">
+      {/* Section Header - Centered Layout */}
+      <div className="flex flex-col items-center justify-center text-center border-b border-[#E8E5DF] pb-8 mb-12 sm:mb-16 gap-5">
         <div>
           <span className="text-[11px] tracking-[0.3em] uppercase text-[#787672] block mb-2 font-medium">
             PORTFOLIO
           </span>
-          <div className="flex flex-wrap items-center gap-4">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal tracking-[0.15em] uppercase text-[#141414]">
-              SELECTED WORKS
-            </h2>
-          </div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal tracking-[0.15em] uppercase text-[#141414]">
+            SELECTED WORKS
+          </h2>
         </div>
 
         {/* Category Filters */}
         <div
-          className="mt-2 md:mt-0 flex flex-wrap gap-x-6 gap-y-3 sm:gap-x-8 text-xs tracking-[0.2em] uppercase font-medium"
+          className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 sm:gap-x-8 text-xs tracking-[0.2em] uppercase font-medium pt-2"
           role="tablist"
           aria-label="Filter works by category"
         >
@@ -72,102 +70,98 @@ export default function WorkGallery({ works, onSelectPhoto, onOpenEditor, isOwne
         </div>
       </div>
 
-      {/* Editorial Photography Grid */}
-      <motion.div
-        layout
-        className="grid grid-cols-1 md:grid-cols-12 gap-8 sm:gap-12 items-start"
-      >
-        <AnimatePresence mode="popLayout">
-          {filteredWorks.map((work, index) => {
-            // Editorial layout logic based on index and orientation
-            // Creates an asymmetric rhythmic magazine layout
-            const patternIndex = index % 5;
-            let colSpan = 'md:col-span-6';
-            let aspectClass = 'aspect-[3/4]';
+      {/* Natural Masonry Photography Gallery */}
+      <div className="hidden lg:grid lg:grid-cols-3 gap-8 sm:gap-10 items-start justify-center">
+        {/* Column 1 */}
+        <div className="flex flex-col gap-8 sm:gap-10 items-center">
+          {filteredWorks
+            .filter((_, i) => i % 3 === 0)
+            .map((work, colIndex) => renderPhotoCard(work, colIndex * 3))}
+        </div>
+        {/* Column 2 */}
+        <div className="flex flex-col gap-8 sm:gap-10 items-center">
+          {filteredWorks
+            .filter((_, i) => i % 3 === 1)
+            .map((work, colIndex) => renderPhotoCard(work, colIndex * 3 + 1))}
+        </div>
+        {/* Column 3 */}
+        <div className="flex flex-col gap-8 sm:gap-10 items-center">
+          {filteredWorks
+            .filter((_, i) => i % 3 === 2)
+            .map((work, colIndex) => renderPhotoCard(work, colIndex * 3 + 2))}
+        </div>
+      </div>
 
-            if (work.aspectRatio === 'landscape') {
-              if (patternIndex === 0 || patternIndex === 3) {
-                colSpan = 'md:col-span-8';
-                aspectClass = 'aspect-[16/10] sm:aspect-[16/9]';
-              } else {
-                colSpan = 'md:col-span-6';
-                aspectClass = 'aspect-[4/3]';
-              }
-            } else {
-              // portrait
-              if (patternIndex === 1 || patternIndex === 4) {
-                colSpan = 'md:col-span-4';
-                aspectClass = 'aspect-[3/4]';
-              } else if (patternIndex === 2) {
-                colSpan = 'md:col-span-6';
-                aspectClass = 'aspect-[4/5]';
-              } else {
-                colSpan = 'md:col-span-4';
-                aspectClass = 'aspect-[2/3]';
-              }
-            }
-
-            return (
-              <motion.div
-                key={work.id}
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.6, delay: index * 0.04, ease: [0.16, 1, 0.3, 1] }}
-                className={`${colSpan} group cursor-pointer`}
-                onClick={() => onSelectPhoto(work, index, filteredWorks)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    onSelectPhoto(work, index, filteredWorks);
-                  }
-                }}
-                tabIndex={0}
-                role="button"
-                aria-label={`View photo ${work.title}`}
-              >
-                {/* Image Box */}
-                <div className={`relative w-full ${aspectClass} overflow-hidden bg-[#E8E5DF]/40`}>
-                  <img
-                    src={work.image}
-                    alt={work.alt}
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.03] filter contrast-[1.01]"
-                  />
-                  {/* Subtle hover scrim */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-500 pointer-events-none" />
-
-                  {/* Category Tag pill on mobile or hover */}
-                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <span className="bg-[#FAF8F5]/90 backdrop-blur-sm text-[#141414] text-[10px] tracking-[0.2em] uppercase px-2.5 py-1">
-                      {work.categoryLabel}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Editorial Caption Below Image */}
-                <div className="mt-3.5 flex items-baseline justify-between">
-                  <div>
-                    <h3 className="text-sm sm:text-base font-normal tracking-wider text-[#141414] group-hover:text-[#787672] transition-colors duration-300">
-                      {work.title}
-                    </h3>
-                    <p className="text-[11px] tracking-[0.18em] uppercase text-[#787672] mt-0.5">
-                      {work.categoryLabel} {work.location ? `— ${work.location}` : ''}
-                    </p>
-                  </div>
-                  {work.year && (
-                    <span className="text-[11px] text-[#787672]/70 font-mono tracking-wider">
-                      {work.year}
-                    </span>
-                  )}
-                </div>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-      </motion.div>
+      {/* Tablet & Mobile Layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-6 sm:gap-8 items-start justify-center">
+        <div className="flex flex-col gap-6 sm:gap-8 items-center">
+          {filteredWorks
+            .filter((_, i) => i % 2 === 0)
+            .map((work, colIndex) => renderPhotoCard(work, colIndex * 2))}
+        </div>
+        <div className="flex flex-col gap-6 sm:gap-8 items-center">
+          {filteredWorks
+            .filter((_, i) => i % 2 === 1)
+            .map((work, colIndex) => renderPhotoCard(work, colIndex * 2 + 1))}
+        </div>
+      </div>
     </section>
   );
+
+  function renderPhotoCard(work: PhotoWork, originalIndex: number) {
+    return (
+      <motion.div
+        key={work.id}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.98 }}
+        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+        className="group cursor-pointer w-full flex flex-col items-center text-center"
+        onClick={() => onSelectPhoto(work, originalIndex, filteredWorks)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onSelectPhoto(work, originalIndex, filteredWorks);
+          }
+        }}
+        tabIndex={0}
+        role="button"
+        aria-label={`Lihat foto ${work.title}`}
+      >
+        {/* Image Box - Natural Height according to uploaded image, centered */}
+        <div className="relative w-full flex items-center justify-center overflow-hidden bg-[#E8E5DF]/30 rounded-none border border-[#E8E5DF]/40 transition-all duration-500 group-hover:border-[#141414]/20 group-hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
+          <img
+            src={work.image}
+            alt={work.alt}
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            className="w-full h-auto block object-cover object-center filter contrast-[1.01] transition-transform duration-700 ease-out group-hover:scale-[1.025]"
+          />
+          {/* Subtle hover scrim */}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-500 pointer-events-none" />
+
+          {/* Category Tag pill on hover */}
+          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="bg-[#FAF8F5]/95 backdrop-blur-md text-[#141414] text-[10px] tracking-[0.2em] uppercase px-3 py-1 font-medium shadow-sm">
+              {work.categoryLabel}
+            </span>
+          </div>
+        </div>
+
+        {/* Editorial Caption Below Image - Center Aligned */}
+        <div className="mt-3.5 flex flex-col items-center justify-center text-center w-full px-2">
+          <h3 className="text-sm sm:text-base font-normal tracking-wide text-[#141414] group-hover:text-[#787672] transition-colors duration-300">
+            {work.title}
+          </h3>
+          <div className="flex items-center justify-center gap-2 mt-1 text-[11px] tracking-[0.18em] uppercase text-[#787672]">
+            <span>{work.categoryLabel}</span>
+            {work.location && <span>&bull; {work.location}</span>}
+            {work.year && (
+              <span className="font-mono text-[#787672]/70">&bull; {work.year}</span>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 }
