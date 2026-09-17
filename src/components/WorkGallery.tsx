@@ -1,17 +1,31 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
+import { Plus, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 import { CategoryId, PhotoWork } from '../types';
 import { CATEGORIES } from '../data/portfolio';
+import AddPhotoModal from './AddPhotoModal';
 
 interface WorkGalleryProps {
   works: PhotoWork[];
   onSelectPhoto: (photo: PhotoWork, index: number, list: PhotoWork[]) => void;
   onOpenEditor: () => void;
   isOwner?: boolean;
+  onAddWork?: (newWork: PhotoWork) => void;
+  onDeleteWork?: (id: string) => void;
+  onMoveWork?: (index: number, direction: 'up' | 'down') => void;
 }
 
-export default function WorkGallery({ works, onSelectPhoto, onOpenEditor, isOwner = false }: WorkGalleryProps) {
+export default function WorkGallery({
+  works,
+  onSelectPhoto,
+  onOpenEditor,
+  isOwner = false,
+  onAddWork,
+  onDeleteWork,
+  onMoveWork,
+}: WorkGalleryProps) {
   const [activeCategory, setActiveCategory] = useState<CategoryId>('ALL');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const filteredWorks = useMemo(() => {
     if (activeCategory === 'ALL') {
@@ -36,6 +50,18 @@ export default function WorkGallery({ works, onSelectPhoto, onOpenEditor, isOwne
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal tracking-[0.15em] uppercase text-[#141414]">
               SELECTED WORKS
             </h2>
+
+            {/* Quick Add Photo Button directly in Work Header for Admin */}
+            {isOwner && (
+              <button
+                type="button"
+                onClick={() => setIsAddModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#141414] text-[#FAF8F5] text-xs uppercase tracking-wider font-medium hover:bg-[#333] transition-colors cursor-pointer shadow-sm"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>+ Tambah Foto Karya</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -72,14 +98,46 @@ export default function WorkGallery({ works, onSelectPhoto, onOpenEditor, isOwne
         </div>
       </div>
 
+      {/* Admin Quick Add Banner if empty */}
+      {filteredWorks.length === 0 && (
+        <div className="text-center py-20 border border-dashed border-[#D1CEC7] bg-[#FAF8F5] p-8 max-w-lg mx-auto">
+          <p className="text-sm text-[#787672] mb-4">Belum ada karya foto di kategori ini.</p>
+          {isOwner && (
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#141414] text-[#FAF8F5] text-xs uppercase tracking-wider font-medium cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Tambah Foto Sekarang</span>
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Single Photo Feed (1 per 1 foto) */}
       <div className="max-w-3xl mx-auto flex flex-col gap-16 sm:gap-24 items-center">
         {filteredWorks.map((work, index) => renderPhotoCard(work, index))}
       </div>
+
+      {/* Quick Add Modal */}
+      {isAddModalOpen && (
+        <AddPhotoModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          defaultCategory={activeCategory}
+          onAddWork={(newWork) => {
+            onAddWork?.(newWork);
+            setIsAddModalOpen(false);
+          }}
+        />
+      )}
     </section>
   );
 
   function renderPhotoCard(work: PhotoWork, originalIndex: number) {
+    const rawIndex = works.findIndex((w) => w.id === work.id);
+
     return (
       <motion.div
         key={work.id}
@@ -87,7 +145,7 @@ export default function WorkGallery({ works, onSelectPhoto, onOpenEditor, isOwne
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.98 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="group cursor-pointer w-full flex flex-col items-center"
+        className="group cursor-pointer w-full flex flex-col items-center relative"
         onClick={() => onSelectPhoto(work, originalIndex, filteredWorks)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -99,6 +157,56 @@ export default function WorkGallery({ works, onSelectPhoto, onOpenEditor, isOwne
         role="button"
         aria-label={`Lihat foto ${work.title}`}
       >
+        {/* Admin Action Bar Floating on Card */}
+        {isOwner && (
+          <div
+            className="absolute top-3 left-3 z-30 flex items-center gap-1.5 bg-[#141414]/90 text-[#FAF8F5] p-1.5 shadow-lg backdrop-blur-sm opacity-90 group-hover:opacity-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {onMoveWork && rawIndex > 0 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMoveWork(rawIndex, 'up');
+                }}
+                className="p-1 hover:bg-white/20 text-[#FAF8F5] cursor-pointer"
+                title="Pindahkan Ke Atas"
+              >
+                <ArrowUp className="w-3.5 h-3.5" />
+              </button>
+            )}
+            {onMoveWork && rawIndex < works.length - 1 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMoveWork(rawIndex, 'down');
+                }}
+                className="p-1 hover:bg-white/20 text-[#FAF8F5] cursor-pointer"
+                title="Pindahkan Ke Bawah"
+              >
+                <ArrowDown className="w-3.5 h-3.5" />
+              </button>
+            )}
+            {onDeleteWork && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (confirm(`Hapus foto "${work.title}" dari galeri?`)) {
+                    onDeleteWork(work.id);
+                  }
+                }}
+                className="p-1 text-red-400 hover:bg-red-500 hover:text-white cursor-pointer ml-1"
+                title="Hapus Foto Ini"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Image Box - Natural Height, centered with elegant framing */}
         <div className="relative w-full overflow-hidden bg-[#E8E5DF]/30 rounded-none border border-[#E8E5DF]/50 transition-all duration-500 group-hover:border-[#141414]/20 group-hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)]">
           <img

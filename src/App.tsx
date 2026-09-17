@@ -9,6 +9,8 @@ import Footer from './components/Footer';
 import PhotoEditorModal from './components/PhotoEditorModal';
 import PinAuthModal from './components/PinAuthModal';
 import AdminPage from './components/AdminPage';
+import LiveAdminBar from './components/LiveAdminBar';
+import ChangePinModal from './components/ChangePinModal';
 import { PhotoWork, PhotographerProfile } from './types';
 import { WORKS_DATA, HERO_IMAGE, PROFILE_DATA } from './data/portfolio';
 import {
@@ -24,6 +26,7 @@ const STORAGE_KEY_WORKS = 'kham_portfolio_works_v1';
 const STORAGE_KEY_HERO = 'kham_portfolio_hero_v1';
 const STORAGE_KEY_PROFILE = 'kham_portfolio_profile_v1';
 const STORAGE_KEY_PIN = 'kham_portfolio_pin_v1';
+const STORAGE_KEY_AUTH = 'kham_admin_session_auth';
 const DEFAULT_PIN = '111222';
 
 export default function App() {
@@ -44,6 +47,11 @@ export default function App() {
       return path || '/';
     }
     return '/';
+  });
+
+  // Admin authentication state shared across app & /admin
+  const [isOwner, setIsOwner] = useState<boolean>(() => {
+    return sessionStorage.getItem(STORAGE_KEY_AUTH) === 'true';
   });
 
   // Gallery works state with LocalStorage fallback & Firestore sync
@@ -87,6 +95,7 @@ export default function App() {
   // Editor and PIN state
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [isChangePinOpen, setIsChangePinOpen] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'synced' | 'saving' | 'error'>('synced');
 
   // Owner PIN
@@ -188,20 +197,31 @@ export default function App() {
   };
 
   const handleRequestOpenEditor = () => {
-    // Navigate directly to /admin
-    navigateTo('/admin');
+    if (isOwner) {
+      setIsEditorOpen(true);
+    } else {
+      setIsPinModalOpen(true);
+    }
   };
 
   const handlePinSuccess = () => {
     setIsPinModalOpen(false);
-    setIsEditorOpen(true);
+    setIsOwner(true);
+    sessionStorage.setItem(STORAGE_KEY_AUTH, 'true');
+  };
+
+  const handleLogout = () => {
+    setIsOwner(false);
+    sessionStorage.removeItem(STORAGE_KEY_AUTH);
+    setIsEditorOpen(false);
+    setIsPinModalOpen(false);
   };
 
   const handleCloseEditor = () => {
     setIsEditorOpen(false);
   };
 
-  // Keyboard shortcut: Shift + E to trigger /admin navigation
+  // Keyboard shortcut: Shift + E to trigger edit mode or PIN login
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -211,20 +231,19 @@ export default function App() {
 
       if (e.shiftKey && (e.key === 'E' || e.key === 'e')) {
         e.preventDefault();
-        if (currentPath === '/admin') {
-          navigateTo('/');
+        if (isOwner) {
+          handleLogout();
         } else {
-          navigateTo('/admin');
+          setIsPinModalOpen(true);
         }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentPath]);
+  }, [isOwner]);
 
   const handleLockOwner = () => {
-    setIsEditorOpen(false);
-    setIsPinModalOpen(false);
+    handleLogout();
   };
 
   const handleUpdatePin = async (newPin: string) => {
@@ -250,6 +269,26 @@ export default function App() {
     }
   };
 
+  const handleAddWork = async (newWork: PhotoWork) => {
+    const updated = [newWork, ...works];
+    await handleSaveWorks(updated);
+  };
+
+  const handleDeleteWork = async (id: string) => {
+    const updated = works.filter((w) => w.id !== id);
+    await handleSaveWorks(updated);
+  };
+
+  const handleMoveWork = async (index: number, direction: 'up' | 'down') => {
+    const targetIdx = direction === 'up' ? index - 1 : index + 1;
+    if (targetIdx < 0 || targetIdx >= works.length) return;
+
+    const copy = [...works];
+    const item = copy.splice(index, 1)[0];
+    copy.splice(targetIdx, 0, item);
+    await handleSaveWorks(copy);
+  };
+
   const handleSaveHeroImage = async (newHero: { url: string; alt: string }) => {
     setHeroImage(newHero);
     setSyncStatus('saving');
@@ -263,6 +302,11 @@ export default function App() {
     }
   };
 
+  const handleUpdateHeroImageUrl = async (newUrl: string) => {
+    const updated = { ...heroImage, url: newUrl };
+    await handleSaveHeroImage(updated);
+  };
+
   const handleSaveProfile = async (newProfile: PhotographerProfile) => {
     setProfile(newProfile);
     setSyncStatus('saving');
@@ -274,6 +318,11 @@ export default function App() {
       console.error('Error saving profile to Firestore / LocalStorage', e);
       setSyncStatus('error');
     }
+  };
+
+  const handleUpdateProfilePartial = async (updated: Partial<PhotographerProfile>) => {
+    const fullProfile = { ...profile, ...updated };
+    await handleSaveProfile(fullProfile);
   };
 
   const handleResetDefaults = () => {
@@ -336,46 +385,70 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#141414] selection:bg-[#141414] selection:text-[#FAF8F5] relative">
+    <div className={`min-h-screen bg-[#FAF8F5] text-[#141414] selection:bg-[#141414] selection:text-[#FAF8F5] relative ${isOwner ? 'pb-16' : ''}`}>
+      {/* Floating Live Admin Status Bar when logged in */}
+      {isOwner && (
+        <LiveAdminBar
+          onOpenEditor={() => setIsEditorOpen(true)}
+          onChangePin={() => setIsChangePinOpen(true)}
+          onLogout={handleLogout}
+          syncStatus={syncStatus}
+        />
+      )}
+
       {/* Top Minimalist Navigation */}
       <Navbar
         onNavigate={handleScrollToSection}
         onOpenEditor={handleRequestOpenEditor}
-        isOwner={false}
+        isOwner={isOwner}
         onOpenAuth={handleRequestOpenEditor}
         profile={profile}
       />
 
       {/* Main Content Area */}
       <main>
-        {/* Visual Hero Section */}
+        {/* Visual Hero Section with Live In-Place Editing */}
         <Hero
           onViewWork={() => handleScrollToSection('work')}
           heroImage={heroImage}
           profile={profile}
+          isOwner={isOwner}
+          onUpdateProfile={handleUpdateProfilePartial}
+          onUpdateHeroImage={handleUpdateHeroImageUrl}
         />
 
-        {/* Selected Works Editorial Gallery */}
+        {/* Selected Works Editorial Gallery with Live In-Place Controls */}
         <WorkGallery
           works={works}
           onSelectPhoto={handleOpenPhoto}
           onOpenEditor={handleRequestOpenEditor}
-          isOwner={false}
+          isOwner={isOwner}
+          onAddWork={handleAddWork}
+          onDeleteWork={handleDeleteWork}
+          onMoveWork={handleMoveWork}
         />
 
-        {/* About Section */}
-        <About profile={profile} />
+        {/* About Section with Live In-Place Text & Portrait Editing */}
+        <About
+          profile={profile}
+          isOwner={isOwner}
+          onUpdateProfile={handleUpdateProfilePartial}
+        />
 
-        {/* Contact Section */}
-        <Contact profile={profile} />
+        {/* Contact Section with Live In-Place Text & Social Editing */}
+        <Contact
+          profile={profile}
+          isOwner={isOwner}
+          onUpdateProfile={handleUpdateProfilePartial}
+        />
       </main>
 
       {/* Minimalist Footer */}
       <Footer
         onOpenEditor={handleRequestOpenEditor}
-        isOwner={false}
+        isOwner={isOwner}
         onOpenAuth={handleRequestOpenEditor}
-        onLock={handleCloseEditor}
+        onLock={handleLogout}
         onNavigateAdmin={() => navigateTo('/admin')}
         profile={profile}
       />
@@ -393,8 +466,18 @@ export default function App() {
         onResetDefaults={handleResetDefaults}
         currentPin={ownerPin}
         onUpdatePin={handleUpdatePin}
-        onLock={handleCloseEditor}
+        onLock={handleLogout}
       />
+
+      {/* Quick Change PIN Modal */}
+      {isChangePinOpen && (
+        <ChangePinModal
+          isOpen={isChangePinOpen}
+          onClose={() => setIsChangePinOpen(false)}
+          currentPin={ownerPin}
+          onUpdatePin={handleUpdatePin}
+        />
+      )}
 
       {/* Secret Owner PIN Authentication Modal */}
       <PinAuthModal

@@ -120,15 +120,15 @@ export default function Navbar({
               CONTACT
             </button>
 
-            {isOwner && onOpenEditor && (
+            {isOwner && (
               <button
                 id="nav-manage-photos"
                 onClick={onOpenEditor}
-                className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#141414] text-[#FAF8F5] hover:bg-[#333] transition-colors text-[10px] tracking-[0.2em] uppercase font-medium cursor-pointer"
-                title="Kelola & Tambah Foto"
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-700 text-[#FAF8F5] hover:bg-emerald-800 transition-colors text-[10px] tracking-[0.2em] uppercase font-medium cursor-pointer"
+                title="Buka Dasbor Lengkap"
               >
                 <PlusCircle className="w-3 h-3" />
-                <span>KELOLA FOTO</span>
+                <span>MODE EDIT AKTIF</span>
               </button>
             )}
           </nav>
